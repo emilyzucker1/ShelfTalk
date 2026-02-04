@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {View, Text}from 'react-native';
 import { StyleSheet, TextInput, Button, Alert } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -13,7 +14,7 @@ export default function LoginScreen() {
     // Simple validation
     if (email === 'test@example.com' && password === 'password') {
       // Fake login success
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/explore');
     } else {
       Alert.alert('Error', 'Invalid credentials');
     }
