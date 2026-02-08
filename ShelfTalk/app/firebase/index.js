@@ -10,12 +10,12 @@ const apiKey = process.env.FIREBASE_API_KEY || Constants.expoConfig?.extra?.fire
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: apiKey,
-  authDomain: "gifgiving-faa01.firebaseapp.com",
-  projectId: "gifgiving-faa01",
-  storageBucket: "gifgiving-faa01.firebasestorage.app",
-  messagingSenderId: "863274232049",
-  appId: "1:863274232049:web:eacf66c8d0bad3e3dca150",
-  measurementId: "G-VZLZ9RX6QD"
+  authDomain: "shelftalk-acf7e.firebaseapp.com",
+  projectId: "shelftalk-acf7e",
+  storageBucket: "shelftalk-acf7e.firebasestorage.app",
+  messagingSenderId: "601251758069",
+  appId: "1:601251758069:web:eaadfcb2785f418fa36abc",
+  measurementId: "G-XN5CS7RDP2"
 };
 
 // Initialize Firebase
