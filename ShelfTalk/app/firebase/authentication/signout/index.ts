@@ -1,15 +1,13 @@
 import { signOut } from "firebase/auth";
-import { auth } from "../..";
 import { NavigateFunction } from "react-router-dom";
+import { auth } from "../..";
 
-export const signOutUser = async (
-    navigate: NavigateFunction,
-) => {
-    try {
-        await signOut(auth);
-        alert("You have been signed out.");
-        navigate('/')
-    } catch (error) {
+export const signOutUser = async (navigate: NavigateFunction) => {
+  try {
+    await signOut(auth);
+    alert("You have been signed out.");
+    navigate("login");
+  } catch (error) {
     console.error(error);
-    }
-}
+  }
+};
