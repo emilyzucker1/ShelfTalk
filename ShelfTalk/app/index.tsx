@@ -5,12 +5,15 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Colors } from "@/constants/theme";
 
+
 const light = Colors.light;
+
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
 
   const handleLogin = async () => {
     try {
@@ -23,9 +26,11 @@ export default function LoginScreen() {
     }
   };
 
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
+
 
       <TextInput
         placeholder="Email"
@@ -37,6 +42,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
       />
 
+
       <TextInput
         placeholder="Password"
         placeholderTextColor={light.icon}
@@ -46,7 +52,9 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
+
       <Button title="Login" onPress={handleLogin} />
+
 
       <Pressable
         style = {styles.link}
@@ -57,6 +65,7 @@ export default function LoginScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -89,6 +98,8 @@ const styles = StyleSheet.create({
     color: light.tint,
     fontSize: 14,
 
+
   },
+
 
 });
