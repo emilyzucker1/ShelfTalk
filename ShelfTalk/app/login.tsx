@@ -3,28 +3,25 @@ import { ThemedView } from "@/components/themed-view";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Button, StyleSheet, TextInput } from "react-native";
-import { registerUser } from "./firebase/authentication/emailauth/index";
+import { loginUserwithEmailandPassword } from "./firebase/authentication/emailauth";
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegister = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    try {
-      const userCredential = await registerUser(email, password, router);
-      const firebaseUser = userCredential?.user;
-    } catch (err) {
-      console.error("Registration error:", err);
-    } finally {
-      router.replace("/");
-    }
+  const handleLogin = () => {
+    console.log("pressed button");
+    loginUserwithEmailandPassword(email, password, router);
+  };
+
+  const handlegotoregister = () => {
+    router.replace("/register");
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Regsiter</ThemedText>
+      <ThemedText type="title">Login</ThemedText>
 
       <TextInput
         placeholder="Email"
@@ -43,7 +40,7 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
-      <Button title="Register" onPress={handleRegister} />
+      <Button title="Login" onPress={handleLogin} />
     </ThemedView>
   );
 }

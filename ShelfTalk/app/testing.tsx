@@ -3,47 +3,50 @@ import { ThemedView } from "@/components/themed-view";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Button, StyleSheet, TextInput } from "react-native";
-import { registerUser } from "./firebase/authentication/emailauth/index";
+import { createPost } from "./backend/create_document";
+import { userID } from "./firebase/index";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [book, setBook] = useState("");
+  const [text, setText] = useState("");
 
-  const handleRegister = async (e: { preventDefault: () => void }) => {
+  const handlePress = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      const userCredential = await registerUser(email, password, router);
-      const firebaseUser = userCredential?.user;
+      createPost(book, text, userID);
     } catch (err) {
-      console.error("Registration error:", err);
+      console.error("error creating document", err);
     } finally {
-      router.replace("/");
+      router.replace("/testing");
     }
+  };
+
+  const handleposts = () => {
+    router.replace("/posts");
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Regsiter</ThemedText>
+      <ThemedText type="title">Testing Database</ThemedText>
 
       <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="book"
+        value={book}
+        onChangeText={setBook}
         style={styles.input}
         autoCapitalize="none"
-        keyboardType="email-address"
       />
 
       <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
+        placeholder="text"
+        value={text}
+        onChangeText={setText}
         style={styles.input}
-        secureTextEntry
       />
 
-      <Button title="Register" onPress={handleRegister} />
+      <Button title="Submit Doc" onPress={handlePress} />
+      <Button title="Go to posts" onPress={handleposts} />
     </ThemedView>
   );
 }
