@@ -23,9 +23,9 @@ export async function registerUser(
     const user = userCredential.user;
 
     // Update the user's displayName with the provided name
-    if (user) {
-      await updateProfile(user, { displayName: name });
-    }
+    // if (user) {
+    //   await updateProfile(user, { displayName: name });
+    // }
 
     // Send a verification email
     alert("Your account has been registered.");
