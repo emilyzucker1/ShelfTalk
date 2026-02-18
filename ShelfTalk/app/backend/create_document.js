@@ -1,4 +1,4 @@
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/index.js";
 
 // consider making a unique data type of Posts with
@@ -10,9 +10,11 @@ export async function createPost(book, text, authorID) {
       authorId: authorID,
       book: book,
       text: text,
+      createdAt: serverTimestamp(),
     });
+    return docRef.id;
   } catch {
     console.log("Error sending data");
   }
-  return 0;
+  return null;
 }

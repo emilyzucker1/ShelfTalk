@@ -2,8 +2,8 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import { Colors } from "@/constants/theme";
+import { auth } from "./firebase";
+import { Colors } from "../constants/theme";
 
 
 const light = Colors.light;
