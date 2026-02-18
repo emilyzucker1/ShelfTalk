@@ -1,34 +1,40 @@
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Alert, Button, StyleSheet, TextInput } from "react-native";
+import { Alert, Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { Colors } from "@/constants/theme";
+
+
+const light = Colors.light;
+
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // Simple validation
-    if (email === "test@example.com" && password === "password") {
-      // Fake login success
+
+  const handleLogin = async () => {
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Firebase user:", cred.user.uid);
       router.replace("/(new)");
-    } else {
-      Alert.alert("Error", "Invalid credentials");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Login failed");
     }
   };
 
-  const handlegotoregister = () => {
-    router.replace("/register");
-  };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Login</ThemedText>
+    <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
+
 
       <TextInput
         placeholder="Email"
+        placeholderTextColor={light.icon}
         value={email}
         onChangeText={setEmail}
         style={styles.input}
@@ -36,19 +42,30 @@ export default function LoginScreen() {
         keyboardType="email-address"
       />
 
+
       <TextInput
         placeholder="Password"
+        placeholderTextColor={light.icon}
         value={password}
         onChangeText={setPassword}
         style={styles.input}
         secureTextEntry
       />
 
+
       <Button title="Login" onPress={handleLogin} />
-      <Button title="Register" onPress={handlegotoregister} />
-    </ThemedView>
+
+
+      <Pressable
+        style = {styles.link}
+        onPress={() => router.push("/register")}
+      >
+       <Text style = {styles.linkText}>Don't have an account? Sign up</Text>
+      </Pressable>
+    </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -56,11 +73,33 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 24,
     gap: 16,
+    backgroundColor: light.background,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: light.text,
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#fdf3f3",
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
+    backgroundColor: light.background,
+    color: light.text,
+    fontSize: 16,
   },
+  link: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  linkText: {
+    color: light.tint,
+    fontSize: 14,
+
+
+  },
+
+
 });
