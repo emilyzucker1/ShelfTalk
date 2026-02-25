@@ -4,6 +4,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db, auth } from "./firebase/index.js";
 import { useRouter } from "expo-router";
 import { deletePost } from "./backend/delete_document.js";
+import { getUserPosts } from "./backend/get_documents.js";
 
 export default function PostsScreen() {
   const router = useRouter();
@@ -15,12 +16,9 @@ export default function PostsScreen() {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const uid = auth?.currentUser?.uid;
-      const postsCollection = collection(db, "posts");
-      const q = uid ? query(postsCollection, where("authorId", "==", uid)) : query(postsCollection);
-      const snapshot = await getDocs(q);
-      const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      if (mountedRef.current) setPosts(list);
+      const posts = await getUserPosts(auth?.currentUser?.uid);
+      setPosts(posts);
+
     } catch (e) {
       console.log("Error fetching posts:", e);
     } finally {
