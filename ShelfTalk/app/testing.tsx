@@ -43,9 +43,17 @@ export default function LoginScreen() {
   const [text, setText] = useState("");
   //for dropdown menu
   const [isPublic, setIsPublic] = useState<boolean | null>(null);
+  const [error, setError] = useState("");
 
   const handlePress = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+
+    if (isPublic === null) {
+      setError("Please select public or private");
+      return;
+    }
+    setError(""); //clear error if valid
+
     try {
       createPost(book, text, userID, isPublic);
     } catch (err) {
@@ -84,6 +92,10 @@ export default function LoginScreen() {
         style={styles.input}
       />
       
+      {error ? (
+        <ThemedText style={styles.errorText}>{error}</ThemedText>
+      ) : null}
+
       <ThemedView style={{ width: 250 }}>
         <InlineDropdown data={data} onSelect={setIsPublic} />
       </ThemedView>
@@ -124,5 +136,9 @@ const styles = StyleSheet.create({
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+  },
+  errorText: {
+    color: "red",
+    marginTop: 8,
   },
 });
