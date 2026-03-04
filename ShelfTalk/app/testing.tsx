@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Button, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { createPost } from "./backend/create_document";
-import { userID } from "./firebase/index";
+import { userID, username } from "./firebase/index";
 
 //this adds the "Viewability" drop down menu to the testing page
 const InlineDropdown = ({ data, onSelect }) => {
@@ -55,7 +55,7 @@ export default function LoginScreen() {
     setError(""); //clear error if valid
 
     try {
-      createPost(book, text, userID, isPublic);
+      createPost(book, text, userID, username, isPublic);
     } catch (err) {
       console.error("error creating document", err);
     } finally {
@@ -75,7 +75,7 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Testing Database</ThemedText>
+      <ThemedText type="title">testing database for {username}</ThemedText>
 
       <TextInput
         placeholder="book"

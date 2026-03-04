@@ -4,10 +4,11 @@ import { db } from "../firebase/index.js";
 // consider making a unique data type of Posts with
 // all the attributes of a post.
 
-export async function createPost(book, text, authorID, isPublic) {
+export async function createPost(book, text, authorID, username, isPublic) {
   try {
     const docRef = await addDoc(collection(db, "posts"), {
       authorId: authorID,
+      username: username,
       isPublic: isPublic,
       book: book,
       text: text,

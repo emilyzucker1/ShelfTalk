@@ -9,11 +9,12 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
 
   const handleRegister = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      const userCredential = await registerUser(email, password, router);
+      const userCredential = await registerUser(email, password, username, router);
       const firebaseUser = userCredential?.user;
     } catch (err) {
       console.error("Registration error:", err);
@@ -24,7 +25,15 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Regsiter</ThemedText>
+      <ThemedText type="title">Register</ThemedText>
+
+      <TextInput
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+        style={styles.input}
+        autoCapitalize="none"
+      />
 
       <TextInput
         placeholder="Email"

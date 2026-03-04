@@ -9,6 +9,7 @@ import {
 export async function registerUser(
   email: string,
   password: string,
+  username: string,
   router: Router,
 ) {
   const auth = getAuth();
@@ -22,10 +23,10 @@ export async function registerUser(
     );
     const user = userCredential.user;
 
-    // Update the user's displayName with the provided name
-    // if (user) {
-    //   await updateProfile(user, { displayName: name });
-    // }
+    // Update the user's displayName with the provided username
+    if (user) {
+      await updateProfile(user, { displayName: username });
+    }
 
     // Send a verification email
     alert("Your account has been registered.");
