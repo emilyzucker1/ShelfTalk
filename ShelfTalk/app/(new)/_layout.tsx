@@ -1,4 +1,7 @@
 import { Tabs } from 'expo-router';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Feather from '@expo/vector-icons/Feather';
 import {Image, View} from "react-native";
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -39,14 +42,7 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color, focused}) => (
             <View style={{alignItems:"center"}}>
-              <Image
-                source={require("../../assets/images/Home_icon.png")}
-                style={{
-                  width:18,
-                  height:20,
-                  tintColor: color,
-                }}
-              />
+              <Feather name="home" size={20} color={color} />
               {focused &&(
                 <View
                   style={{
@@ -70,14 +66,7 @@ export default function TabLayout() {
           title: 'Search',
           tabBarIcon: ({ color, focused}) => (
             <View style={{alignItems:"center"}}>
-              <Image
-                source={require("../../assets/images/search_icon.png")}
-                style={{
-                  width:18,
-                  height:18,
-                  tintColor: color,
-                }}
-              />
+              <FontAwesome name="search" size={18} color={color} />
               {focused &&(
                 <View
                   style={{
@@ -100,14 +89,7 @@ export default function TabLayout() {
             title:'Profile',
             tabBarIcon: ({ color, focused}) => (
             <View style={{alignItems:"center"}}>
-              <Image
-                source={require("../../assets/images/profile_icon.png")}
-                style={{
-                  width:18,
-                  height:18,
-                  tintColor: color,
-                }}
-              />
+              <AntDesign name="user" size={18} color={color} />
               {focused &&(
                 <View
                   style={{
