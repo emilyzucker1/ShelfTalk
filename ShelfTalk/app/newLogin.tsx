@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { useState } from 'react';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { onGoogleButtonPress } from './firebase/authentication/googleauth';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -70,13 +70,11 @@ export default function LoginScreen() {
         <View style={styles.dividerLine} />
       </View>
 
-    <TouchableOpacity style={styles.oauthBtn}>
-    <Image 
-    source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png' }}
-    style={{ width: 20, height: 20, marginRight: 10 }}
-    />
-    <Text style={styles.oauthText}>Continue with Google</Text>
-    </TouchableOpacity>
+      {/* OAuth buttons */}
+      <TouchableOpacity style={styles.oauthBtn} onPress={() => onGoogleButtonPress(router)}>
+        <Text style={styles.oauthIcon}>G</Text>
+        <Text style={styles.oauthText}>Continue with Google</Text>
+      </TouchableOpacity>
 
      {/* Apple */}
     <TouchableOpacity style={styles.oauthBtn}>
