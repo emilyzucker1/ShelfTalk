@@ -1,6 +1,33 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import React, {useState} from "react";
+import {useRouter} from "expo-router";
+import { registerUser } from "./firebase/authentication/emailauth/index";
+import { auth } from "./firebase";
 
 export default function LoginScreen() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+
+    const handleRegister = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      const userCredential = await registerUser(email, password, username, router);
+      const firebaseUser = userCredential?.user;
+    } catch (err) {
+      console.error("Registration error:", err);
+    } finally {
+      router.replace("./pages/index");
+    }
+  };
+
+
+   const handlegotologin = () => {
+     router.replace("/login");
+   };
+
+
   return (
     <View style={styles.container}>
       {/* Top sage card */}
@@ -12,7 +39,7 @@ export default function LoginScreen() {
         />
        
         <Text style={styles.heading}>Create an account</Text>
-        <Text style={styles.subheading}>Enter your email to sign up</Text>
+        <Text style={styles.subheading}>Enter your email and a password to sign up</Text>
 
         <TextInput
           style={styles.input}
@@ -20,9 +47,31 @@ export default function LoginScreen() {
           placeholderTextColor="#aaa"
           keyboardType="email-address"
           autoCapitalize="none"
+          onChangeText={setEmail}
+          value={email}
         />
-        <TouchableOpacity style={styles.continueBtn}>
+        <TextInput
+          style={styles.input}
+          placeholder="username"
+          placeholderTextColor="#aaa"
+          autoCapitalize="none"
+          onChangeText={setUsername}
+          value={username}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="password"
+          placeholderTextColor="#aaa"
+          autoCapitalize="none"
+          onChangeText={setPassword}
+          value={password}
+        />
+        <TouchableOpacity style={styles.continueBtn} onPress={handleRegister}>
           <Text style={styles.continueBtnText}>Continue</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navtoLogin} onPress={handlegotologin}>
+          <Text style={styles.navtoLoginText}>Sign in here!</Text>
         </TouchableOpacity>
       </View>
 
@@ -64,8 +113,14 @@ const styles = StyleSheet.create({
   continueBtn: {
     width: '100%', backgroundColor: '#1a1a1a',
     borderRadius: 12, padding: 16, alignItems: 'center',
+    marginBottom: 10
   },
-  continueBtnText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  navtoLogin: {
+    width: '100%', backgroundColor: '#1a1a1a',
+    borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 10
+  },
+  continueBtnText: { color: '#fff', fontWeight: '600', fontSize: 16},
+  navtoLoginText: { color: '#fff', fontWeight: '600', fontSize: 16 },
   dividerRow: {
     flexDirection: 'row', alignItems: 'center',
     marginHorizontal: 24, marginVertical: 20,
