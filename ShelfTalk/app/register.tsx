@@ -1,13 +1,9 @@
-<<<<<<< HEAD:ShelfTalk/app/login.tsx
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { onGoogleButtonPress } from './firebase/authentication/googleauth/index.js';
-=======
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import React, {useState} from "react";
 import {useRouter} from "expo-router";
 import { registerUser } from "./firebase/authentication/emailauth/index";
 import { auth } from "./firebase";
->>>>>>> 1764b4526e60ca8a71c1e5f9baaf803e3aee1478:ShelfTalk/app/register.tsx
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -29,7 +25,7 @@ export default function LoginScreen() {
 
 
    const handlegotologin = () => {
-     router.replace("/login");
+     router.replace("/newLogin");
    };
 
 
