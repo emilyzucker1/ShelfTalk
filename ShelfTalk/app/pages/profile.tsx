@@ -19,9 +19,20 @@ export default function App() {
   const [selected, setSelected] = useState("journal");
   const [entries, setEntries]=useState<JournalEntry[]>([]);
   const[popupVisible,setPopupVisible]=useState(false);
+  const[editingIndex,setEditingIndex]=useState<number| null>(null);
   const handleNewEntry=(entryData: JournalEntry)=>{
-    setEntries((prev)=>[...prev,entryData]);
+    if (editingIndex !== null) {
+      // EDITING an existing entry
+      const updated = [...entries];
+      updated[editingIndex] = entryData;
+      setEntries(updated);
+      setEditingIndex(null);
+    } else {
+      // ADDING a new entry
+      setEntries(prev => [...prev, entryData]);
+    }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -74,8 +85,11 @@ in reading novels and love historical books.
 
               <AddJournal
                 visible={popupVisible}
-                onClose={() => setPopupVisible(false)}
+                onClose={() => {setPopupVisible(false);
+                  setEditingIndex(null);
+                }}
                 onSubmit={handleNewEntry}
+                initialData={editingIndex!=null? entries[editingIndex]:null}
               />
 
               <ScrollView
@@ -93,6 +107,10 @@ in reading novels and love historical books.
                     content={item.entry}
                     status={item.status}
                     image={item.image}
+                    onEdit={()=>{
+                      setEditingIndex(index);
+                      setPopupVisible(true);
+                    }}
                   />
                 ))}
 
@@ -100,7 +118,6 @@ in reading novels and love historical books.
             </>
           )}
         </View>
-        <Text>This is the profile screen</Text>
       </View>
     </View>
   );
@@ -128,7 +145,7 @@ const styles = StyleSheet.create({
   },
   photoWrapper:{
     position:'absolute',
-    top:112,
+    top:85,
     left:'50%',
     transform:[{translateX:-75}],
     zIndex:10,

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Button,Text, Image, View, Platform, Alert, Pressable, StyleSheet} from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 
 export function formatStatus(status){
     
@@ -11,7 +12,7 @@ export function formatStatus(status){
         return {box:"startedBox", style:"startedBoxText"}
     }
 }
-export default function JournalEntries({date, title, content, status, image}) {
+export default function JournalEntries({date, title, content, status, image, onEdit}) {
     //this is to change the format depending on status.
     const{box, style}=formatStatus(status);
     //this is to pick the image for the journal entry
@@ -68,7 +69,12 @@ export default function JournalEntries({date, title, content, status, image}) {
                 </View>
                 
             </View>
+            <Pressable onPress={onEdit}>
+                <Feather name="edit" size={24} color="#605F5F" />
+            </Pressable>
+            
         </View>
+        
     );
     
 
