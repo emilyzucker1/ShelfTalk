@@ -3,7 +3,7 @@ import ProfilePhoto  from '../../components/ui/profile_photo';
 import JournalEntries from '../../components/ui/journal_entries';
 import CustomSwitch from '../../components/ui/switch';
 import Feather from '@expo/vector-icons/Feather';
-import { Text, View, StyleSheet, Switch } from 'react-native';
+import { Text, View, StyleSheet, Switch, ScrollView } from 'react-native';
 
 export default function App() {
   const [selected, setSelected] = useState("journal");
@@ -25,9 +25,20 @@ in reading novels and love historical books.
           <Text style= {{fontSize:15, fontWeight:'400'}}>Public Journal Entries: 10</Text>
         </View>
         <CustomSwitch selected={selected} onSelectChange={setSelected} />
-        {selected === "journal" && (
-          <JournalEntries date={'2/8/2026'} title={'Sample Title'} content={'Sample Content'} status={'Finished'} />
-        )}
+        <View style={{ flex: 1, width: "100%" }}>
+          {selected === "journal" && (
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{
+                paddingVertical: 20,
+              }}
+              showsVerticalScrollIndicator={false}
+            >
+
+              <JournalEntries date={'2/8/2026'} title={'Sample Title'} content={'Sample Content'} status={'Finished'} />
+            </ScrollView>
+          )}
+        </View>
         <Text>This is the profile screen</Text>
       </View>
     </View>
