@@ -1,3 +1,4 @@
+import { Router } from "expo-router";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 
 
@@ -6,7 +7,7 @@ import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 //   webClientId: '601251758069-meikb6an4584ng13khbkaol0taajpb1u.apps.googleusercontent.com',
 // });
 
-async function onGoogleButtonPress() {
+async function onGoogleButtonPress(router: Router) {
     try{
         const auth = getAuth();
         const provider = new GoogleAuthProvider();
@@ -17,6 +18,9 @@ async function onGoogleButtonPress() {
     }
     catch (err) {
         console.log("Error with Google Sign-In:", err);
+    }
+    finally {
+        router.replace("./pages/index");
     }
 
 }

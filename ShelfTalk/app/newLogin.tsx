@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { onGoogleButtonPress } from './firebase/authentication/googleauth';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -70,7 +71,7 @@ export default function LoginScreen() {
       </View>
 
       {/* OAuth buttons */}
-      <TouchableOpacity style={styles.oauthBtn}>
+      <TouchableOpacity style={styles.oauthBtn} onPress={() => onGoogleButtonPress(router)}>
         <Text style={styles.oauthIcon}>G</Text>
         <Text style={styles.oauthText}>Continue with Google</Text>
       </TouchableOpacity>
