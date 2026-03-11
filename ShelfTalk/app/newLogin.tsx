@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function LoginScreen() {
           style={{ width: 120, height: 120, marginBottom: 20 }}
         />
 
-        <Text style={styles.heading}>Welcome back</Text>
+        <Text style={styles.heading}>Welcome back!</Text>
         <Text style={styles.subheading}>Sign in to your account</Text>
 
         <TextInput
@@ -69,17 +70,19 @@ export default function LoginScreen() {
         <View style={styles.dividerLine} />
       </View>
 
-      {/* OAuth buttons */}
-      <TouchableOpacity style={styles.oauthBtn}>
-        <Text style={styles.oauthIcon}>G</Text>
-        <Text style={styles.oauthText}>Continue with Google</Text>
-      </TouchableOpacity>
+    <TouchableOpacity style={styles.oauthBtn}>
+    <Image 
+    source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png' }}
+    style={{ width: 20, height: 20, marginRight: 10 }}
+    />
+    <Text style={styles.oauthText}>Continue with Google</Text>
+    </TouchableOpacity>
 
-      <TouchableOpacity style={styles.oauthBtn}>
-        <Text style={styles.oauthIcon}></Text>
+     {/* Apple */}
+    <TouchableOpacity style={styles.oauthBtn}>
+        <AntDesign name="apple" size={20} color="#000" style={{ marginRight: 10 }} />
         <Text style={styles.oauthText}>Continue with Apple</Text>
-      </TouchableOpacity>
-
+    </TouchableOpacity>
       {/* Register link */}
       <View style={styles.registerRow}>
         <Text style={styles.registerPrompt}>Don't have an account? </Text>
@@ -125,7 +128,7 @@ const styles = StyleSheet.create({
   forgotWrapper: { alignSelf: 'flex-end', marginBottom: 16 },
   forgotText: { fontSize: 13, color: '#1a1a1a', textDecorationLine: 'underline' },
   continueBtn: {
-    width: '100%', backgroundColor: '#1a1a1a',
+    width: '100%', backgroundColor: '#2f2f2f',
     borderRadius: 12, padding: 16, alignItems: 'center',
   },
   continueBtnText: { color: '#fff', fontWeight: '600', fontSize: 16 },
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
   dividerText: { marginHorizontal: 12, color: '#888', fontSize: 13 },
   oauthBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#fff', borderRadius: 12, padding: 14,
+    backgroundColor: '#e6f2f0', borderRadius: 12, padding: 14,
     marginHorizontal: 24, marginBottom: 12,
     shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
   },
