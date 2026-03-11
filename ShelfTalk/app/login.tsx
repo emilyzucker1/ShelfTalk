@@ -1,61 +1,83 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, Button, Alert } from 'react-native';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useRouter } from 'expo-router';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
 export default function LoginScreen() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = () => {
-    // Simple validation
-    if (email === 'test@example.com' && password === 'password') {
-      // Fake login success
-      router.replace('/(tabs)');
-    } else {
-      Alert.alert('Error', 'Invalid credentials');
-    }
-  };
-
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Login</ThemedText>
+    <View style={styles.container}>
+      {/* Top sage card */}
+      <View style={styles.card}>
 
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
+        <Image
+            source={require('../assets/images/shelftalkLogo.png')}
+            style={{ width: 120, height: 120, marginBottom: 20 }}
+        />
+       
+        <Text style={styles.heading}>Create an account</Text>
+        <Text style={styles.subheading}>Enter your email to sign up</Text>
 
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="email@domain.com"
+          placeholderTextColor="#aaa"
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TouchableOpacity style={styles.continueBtn}>
+          <Text style={styles.continueBtnText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
 
-      <Button title="Login" onPress={handleLogin} />
-    </ThemedView>
+      {/* Divider */}
+      <View style={styles.dividerRow}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>or</Text>
+        <View style={styles.dividerLine} />
+      </View>
+
+      {/* OAuth buttons */}
+      <TouchableOpacity style={styles.oauthBtn}>
+        <Text style={styles.oauthIcon}>G</Text>
+        <Text style={styles.oauthText}>Continue with Google</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.oauthBtn}>
+        <Text style={styles.oauthIcon}></Text>
+        <Text style={styles.oauthText}>Continue with Apple</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    gap: 16,
+  container: { flex: 1, backgroundColor: '#90b8a8' },
+  card: {
+    backgroundColor: '#90b8a8',
+    padding: 32, paddingTop: 60,
+    alignItems: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#fdf3f3',
-    borderRadius: 8,
-    padding: 12,
+  heading: { fontSize: 22, fontWeight: '700', color: '#1a1a1a', marginBottom: 4 },   // ← missing
+  subheading: { fontSize: 14, color: '#2a2a2a', marginBottom: 20 },                  // ← missing
+  input: {                                                                             // ← missing
+    width: '100%', backgroundColor: '#f5f5f5',
+    borderRadius: 12, padding: 14, fontSize: 15,
+    marginBottom: 12,
   },
+  continueBtn: {
+    width: '100%', backgroundColor: '#1a1a1a',
+    borderRadius: 12, padding: 16, alignItems: 'center',
+  },
+  continueBtnText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  dividerRow: {
+    flexDirection: 'row', alignItems: 'center',
+    marginHorizontal: 24, marginVertical: 20,
+  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#ccc' },
+  dividerText: { marginHorizontal: 12, color: '#888', fontSize: 13 },
+  oauthBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#fff', borderRadius: 12, padding: 14,
+    marginHorizontal: 24, marginBottom: 12,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+  },
+  oauthIcon: { fontSize: 18, marginRight: 10, fontWeight: '700' },
+  oauthText: { fontSize: 15, fontWeight: '500' },
 });
