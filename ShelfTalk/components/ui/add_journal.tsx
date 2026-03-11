@@ -1,19 +1,37 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import React, {useState} from "react";
 import{Modal, View, Text, TextInput, Pressable, StyleSheet, Image, Platform, Alert} from "react-native";
+import {useEffect} from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 type Props = {
   visible: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void; // you can refine this later
+  initialData?:any | null;
 };
-export default function AddJournal({visible, onClose, onSubmit}:Props){
+export default function AddJournal({visible, onClose, onSubmit, initialData}:Props){
     const [title, setTitle] = useState("");
     const [date, setDate] = useState("");
     const [entry, setEntry] = useState("");
     const [status, setStatus] = useState("Started");
     const [image, setImage] = useState<string | null>(null);
+    useEffect(() => {
+        if (initialData) {
+            setTitle(initialData.title);
+            setDate(initialData.date);
+            setEntry(initialData.entry);
+            setStatus(initialData.status);
+            setImage(initialData.image);
+        } else {
+            // Reset when adding a new entry
+            setTitle("");
+            setDate("");
+            setEntry("");
+            setStatus("Started");
+            setImage(null);
+        }
+        }, [initialData, visible]);
     const pickImage=async()=>{
         if (Platform.OS!="web"){
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -42,11 +60,14 @@ export default function AddJournal({visible, onClose, onSubmit}:Props){
             image,
         });
         //reset fields
-        setTitle("");
-        setDate("");
-        setEntry("");
-        setStatus("Started");
-        setImage(null);
+        if(!initialData){
+            setTitle("");
+            setDate("");
+            setEntry("");
+            setStatus("Started");
+            setImage(null);
+        }
+        
 
         onClose();
     };
