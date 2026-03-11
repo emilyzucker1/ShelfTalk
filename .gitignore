@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# expo
+.expo/
+.expo-shared/
+
+# python
+__pycache__/
+*.pyc
+
+# environment
+.env
+
+# firebase credentials
+*.json
+
+# vscode
+.vscode/
+
+# mac
+.DS_Store
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# build
+dist/
+build/
