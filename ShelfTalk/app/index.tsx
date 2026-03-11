@@ -24,7 +24,7 @@ export default function LoadingScreen() {
         useNativeDriver: true,
     }).start(async () => {
         await SplashScreen.hideAsync();
-        router.replace('/login' as any);
+        router.replace('/register' as any);
     });
     }, 4000);
     return () => clearTimeout(timer);
