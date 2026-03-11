@@ -20,7 +20,11 @@ async function onGoogleButtonPress(router: Router) {
         console.log("Error with Google Sign-In:", err);
     }
     finally {
+<<<<<<< HEAD
         router.replace("./pages");
+=======
+        router.replace("./pages/index");
+>>>>>>> c3fbb3c8a17807c82fe4ce094c0ad57495316e0a
     }
 
 }
