@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
 import ProfilePhoto  from '../../components/ui/profile_photo';
+import AddJournal from '@/components/ui/add_journal';
 import JournalEntries from '../../components/ui/journal_entries';
 import CustomSwitch from '../../components/ui/switch';
 import Feather from '@expo/vector-icons/Feather';
-import { Text, View, StyleSheet, Switch, ScrollView } from 'react-native';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { Text, View, StyleSheet, Switch, ScrollView, Pressable } from 'react-native';
 
 export default function App() {
+  type JournalEntry = {
+    title: string;
+    date: string;
+    entry: string;
+    status: "Started" | "Finished";
+    image: string | null;
+  };
+
   const [selected, setSelected] = useState("journal");
+  const [entries, setEntries]=useState<JournalEntry[]>([]);
+  const[popupVisible,setPopupVisible]=useState(false);
+  const handleNewEntry=(entryData: JournalEntry)=>{
+    setEntries((prev)=>[...prev,entryData]);
+  };
 
   return (
     <View style={styles.container}>
@@ -27,16 +42,62 @@ in reading novels and love historical books.
         <CustomSwitch selected={selected} onSelectChange={setSelected} />
         <View style={{ flex: 1, width: "100%" }}>
           {selected === "journal" && (
-            <ScrollView
-              style={{ flex: 1 }}
-              contentContainerStyle={{
-                paddingVertical: 20,
-              }}
-              showsVerticalScrollIndicator={false}
-            >
+            <>
+              <View
+                
+                style={{
+                  padding: 15,
+                  paddingLeft:20,
+                  backgroundColor: "transparent",
+                  borderRadius: 8,
+                  alignItems: "center",
+                  flexDirection:"row",
+                  gap:8,
+                }}
+              >
+                <Pressable onPress={() => setPopupVisible(true)}>
+                <View style={{
+                  width:28,
+                  height:27,
+                  backgroundColor:"#90B8A8",
+                  borderRadius:7.4,
+                  alignItems:"center",
+                  justifyContent:"center",
+                }}>
+                  <AntDesign name="plus" size={24} color="white" />
+                </View>
+                </Pressable>
+                <Text style={{ color: "#F4A896", fontWeight: "500" }}>
+                  Log New Entry
+                </Text>
+              </View>
 
-              <JournalEntries date={'2/8/2026'} title={'Sample Title'} content={'Sample Content'} status={'Finished'} />
-            </ScrollView>
+              <AddJournal
+                visible={popupVisible}
+                onClose={() => setPopupVisible(false)}
+                onSubmit={handleNewEntry}
+              />
+
+              <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={{
+                  paddingVertical: 20,
+                }}
+                showsVerticalScrollIndicator={false}
+              >
+                {entries.map((item, index) => (
+                  <JournalEntries
+                    key={index}
+                    date={item.date}
+                    title={item.title}
+                    content={item.entry}
+                    status={item.status}
+                    image={item.image}
+                  />
+                ))}
+
+              </ScrollView>
+            </>
           )}
         </View>
         <Text>This is the profile screen</Text>
