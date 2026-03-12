@@ -1,11 +1,9 @@
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-<<<<<<< HEAD
-import { onGoogleButtonPress } from './firebase/authentication/googleauth/index';
-=======
+import { AntDesign } from '@expo/vector-icons';
 import { onGoogleButtonPress } from './firebase/authentication/googleauth';
->>>>>>> c3fbb3c8a17807c82fe4ce094c0ad57495316e0a
+
 
 export default function LoginScreen() {
   const router = useRouter();

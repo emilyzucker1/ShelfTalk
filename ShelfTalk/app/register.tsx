@@ -1,16 +1,9 @@
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-<<<<<<< HEAD
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { registerUser } from "./firebase/authentication/emailauth/index";
-import { onGoogleButtonPress } from './firebase/authentication/googleauth/index';
-=======
-import { registerUser } from "./firebase/authentication/emailauth/index";
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
-import { onGoogleButtonPress } from './firebase/authentication/googleauth/index.js';
-import { auth } from "./firebase";
-import { onGoogleButtonPress } from "./firebase/authentication/googleauth";
->>>>>>> c3fbb3c8a17807c82fe4ce094c0ad57495316e0a
+import { onGoogleButtonPress } from './firebase/authentication/googleauth';
+
 
 export default function LoginScreen() {
   const router = useRouter();
