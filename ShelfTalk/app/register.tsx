@@ -1,9 +1,9 @@
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
-import { onGoogleButtonPress } from './firebase/authentication/googleauth/index.js';
-import React, {useState} from "react";
-import {useRouter} from "expo-router";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { registerUser } from "./firebase/authentication/emailauth/index";
-import { auth } from "./firebase";
+import { onGoogleButtonPress } from './firebase/authentication/googleauth';
+
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -84,7 +84,7 @@ export default function LoginScreen() {
       </View>
 
       {/* OAuth buttons */}
-      <TouchableOpacity style={styles.oauthBtn} onPress={() => onGoogleButtonPress()}>
+      <TouchableOpacity style={styles.oauthBtn} onPress={() => onGoogleButtonPress(router)}>
         <Text style={styles.oauthIcon}>G</Text>
         <Text style={styles.oauthText}>Continue with Google</Text>
       </TouchableOpacity>

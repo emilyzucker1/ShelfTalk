@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import ProfilePhoto  from '../../components/ui/profile_photo';
 import AddJournal from '@/components/ui/add_journal';
-import JournalEntries from '../../components/ui/journal_entries';
-import CustomSwitch from '../../components/ui/switch';
-import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { Text, View, StyleSheet, Switch, ScrollView, Pressable } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import JournalEntries from '../../components/ui/journal_entries';
+import ProfilePhoto from '../../components/ui/profile_photo';
+import CustomSwitch from '../../components/ui/switch';
 
 export default function App() {
   type JournalEntry = {
