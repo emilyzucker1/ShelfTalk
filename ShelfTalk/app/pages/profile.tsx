@@ -30,6 +30,7 @@ export default function App() {
     } else {
       // ADDING a new entry
       setEntries(prev => [...prev, entryData]);
+      //its is where we recieve entry data, this is where we could connect it to the database.
     }
   };
   

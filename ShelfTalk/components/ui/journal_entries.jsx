@@ -53,6 +53,7 @@ export default function JournalEntries({date, title, content, status, image, onE
     },
     });
     return (
+        <View>
         <View style={{flexDirection:'row', alignItems:'center', gap:10, padding:10, backgroundColor:'transparent', borderRadius:10, marginBottom:10}}>
                 {image ? (
                     <Image source={{ uri: image }} style={{ width: 77, height: 100, borderRadius: 0 }} />
@@ -73,6 +74,18 @@ export default function JournalEntries({date, title, content, status, image, onE
                 <Feather name="edit" size={24} color="#605F5F" />
             </Pressable>
             
+        </View>
+        <View
+            style={{
+                height: 1,
+                backgroundColor: "#605F5F",
+                width: "80%",
+                alignSelf:"center",
+                marginTop: 5,
+                marginBottom: 10,
+            }}
+            />
+
         </View>
         
     );
