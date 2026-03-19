@@ -6,8 +6,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import JournalEntries from '../../components/ui/journal_entries';
 import ProfilePhoto from '../../components/ui/profile_photo';
 import CustomSwitch from '../../components/ui/switch';
+import { useRouter } from 'expo-router';
 
 export default function App() {
+  const router = useRouter();
   type JournalEntry = {
     title: string;
     date: string;
@@ -38,6 +40,9 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.topHalf}>
+        <Pressable style={styles.settingsButton} onPress={() => router.push('/settings')}>
+          <Feather name="settings" size={24} color="white" />
+        </Pressable>
         </View>
       <View style={styles.photoWrapper}>
         <ProfilePhoto />
@@ -143,6 +148,12 @@ const styles = StyleSheet.create({
     justifyContent:'flex-start',
     alignItems:'center',
     paddingTop:60,
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    padding: 10,
   },
   photoWrapper:{
     position:'absolute',
