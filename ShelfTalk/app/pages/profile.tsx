@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import ProfilePhoto  from '../../components/ui/profile_photo';
 import AddJournal from '@/components/ui/add_journal';
-import JournalEntries from '../../components/ui/journal_entries';
-import CustomSwitch from '../../components/ui/switch';
-import Feather from '@expo/vector-icons/Feather';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { Text, View, StyleSheet, Switch, ScrollView, Pressable } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import JournalEntries from '../../components/ui/journal_entries';
+import ProfilePhoto from '../../components/ui/profile_photo';
+import CustomSwitch from '../../components/ui/switch';
 
 export default function App() {
   type JournalEntry = {
@@ -19,9 +19,21 @@ export default function App() {
   const [selected, setSelected] = useState("journal");
   const [entries, setEntries]=useState<JournalEntry[]>([]);
   const[popupVisible,setPopupVisible]=useState(false);
+  const[editingIndex,setEditingIndex]=useState<number| null>(null);
   const handleNewEntry=(entryData: JournalEntry)=>{
-    setEntries((prev)=>[...prev,entryData]);
+    if (editingIndex !== null) {
+      // EDITING an existing entry
+      const updated = [...entries];
+      updated[editingIndex] = entryData;
+      setEntries(updated);
+      setEditingIndex(null);
+    } else {
+      // ADDING a new entry
+      setEntries(prev => [...prev, entryData]);
+      //its is where we recieve entry data, this is where we could connect it to the database.
+    }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -74,8 +86,11 @@ in reading novels and love historical books.
 
               <AddJournal
                 visible={popupVisible}
-                onClose={() => setPopupVisible(false)}
+                onClose={() => {setPopupVisible(false);
+                  setEditingIndex(null);
+                }}
                 onSubmit={handleNewEntry}
+                initialData={editingIndex!=null? entries[editingIndex]:null}
               />
 
               <ScrollView
@@ -93,6 +108,10 @@ in reading novels and love historical books.
                     content={item.entry}
                     status={item.status}
                     image={item.image}
+                    onEdit={()=>{
+                      setEditingIndex(index);
+                      setPopupVisible(true);
+                    }}
                   />
                 ))}
 
@@ -100,7 +119,6 @@ in reading novels and love historical books.
             </>
           )}
         </View>
-        <Text>This is the profile screen</Text>
       </View>
     </View>
   );
@@ -128,7 +146,7 @@ const styles = StyleSheet.create({
   },
   photoWrapper:{
     position:'absolute',
-    top:112,
+    top:85,
     left:'50%',
     transform:[{translateX:-75}],
     zIndex:10,

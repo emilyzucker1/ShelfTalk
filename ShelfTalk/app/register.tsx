@@ -1,8 +1,9 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
-import React, {useState} from "react";
-import {useRouter} from "expo-router";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { registerUser } from "./firebase/authentication/emailauth/index";
-import { auth } from "./firebase";
+import { onGoogleButtonPress } from './firebase/authentication/googleauth';
+
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -22,6 +23,12 @@ export default function LoginScreen() {
       router.replace("./pages/index");
     }
   };
+
+
+   const handlegotologin = () => {
+     router.replace("/newLogin");
+   };
+
 
   return (
     <View style={styles.container}>
@@ -82,7 +89,7 @@ export default function LoginScreen() {
       </View>
 
       {/* OAuth buttons */}
-      <TouchableOpacity style={styles.oauthBtn}>
+      <TouchableOpacity style={styles.oauthBtn} onPress={() => onGoogleButtonPress(router)}>
         <Text style={styles.oauthIcon}>G</Text>
         <Text style={styles.oauthText}>Continue with Google</Text>
       </TouchableOpacity>
