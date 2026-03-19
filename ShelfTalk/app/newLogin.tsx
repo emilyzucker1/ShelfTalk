@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { loginUserwithEmailandPassword } from "./firebase/authentication/emailauth";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    // TODO: wire up your auth logic here
-    console.log('Login:', { username, password });
+  const handleLogin = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    loginUserwithEmailandPassword(email, password, router);
   };
 
   return (
@@ -29,12 +30,12 @@ export default function LoginScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="Username"
+          placeholder="Email"
           placeholderTextColor="#aaa"
           autoCapitalize="none"
           autoCorrect={false}
-          value={username}
-          onChangeText={setUsername}
+          value={email}
+          onChangeText={setEmail}
         />
 
         <View style={styles.passwordWrapper}>
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
   },
   showBtn: { paddingVertical: 4, paddingHorizontal: 6 },
   showBtnText: { fontSize: 13, color: '#555', fontWeight: '500' },
-  forgotWrapper: { alignSelf: 'flex-end', marginBottom: 16 },
+  forgotWrapper: { alignItems: 'center', marginBottom: 16 },
   forgotText: { fontSize: 13, color: '#1a1a1a', textDecorationLine: 'underline' },
   continueBtn: {
     width: '100%', backgroundColor: '#1a1a1a',

@@ -37,7 +37,7 @@ export async function registerUser(
     console.error("Error during registration:", error);
     //throw new Error(error.message || "Failed to register user");
   } finally {
-    router.replace("./pages/index");
+    router.replace("/newLogin");
   }
 }
 
@@ -54,7 +54,7 @@ export const loginUserwithEmailandPassword = async (
       password,
     );
     const result = userCredential.user;
-    router.replace("/");
+    router.replace("/pages");
   } catch (error) {
     alert("Your username or password is incorrect.");
     console.error("nothing happened");

@@ -9,6 +9,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
     const handleRegister = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -21,12 +22,6 @@ export default function LoginScreen() {
       router.replace("./pages/index");
     }
   };
-
-
-   const handlegotologin = () => {
-     router.replace("/login");
-   };
-
 
   return (
     <View style={styles.container}>
@@ -58,23 +53,27 @@ export default function LoginScreen() {
           onChangeText={setUsername}
           value={username}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="password"
-          placeholderTextColor="#aaa"
-          autoCapitalize="none"
-          onChangeText={setPassword}
-          value={password}
-        />
-        <TouchableOpacity style={styles.continueBtn} onPress={handleRegister}>
-          <Text style={styles.continueBtnText}>Continue</Text>
-        </TouchableOpacity>
+        <View style={styles.passwordWrapper}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            placeholderTextColor="#aaa"
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={password}
+            onChangeText={setPassword}
+            />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showBtn}>
+            <Text style={styles.showBtnText}>{showPassword ? 'Hide' : 'Show'}</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.navtoLogin} onPress={handlegotologin}>
-          <Text style={styles.navtoLoginText}>Sign in here!</Text>
+        <TouchableOpacity style={styles.continueBtn} onPress={handleRegister}>
+          <Text style={styles.continueBtnText}>Register</Text>
         </TouchableOpacity>
       </View>
-
+      <View>
       {/* Divider */}
       <View style={styles.dividerRow}>
         <View style={styles.dividerLine} />
@@ -92,6 +91,15 @@ export default function LoginScreen() {
         <Text style={styles.oauthIcon}></Text>
         <Text style={styles.oauthText}>Continue with Apple</Text>
       </TouchableOpacity>
+
+      {/* Login link */}
+            <View style={styles.registerRow}>
+              <Text style={styles.loginPrompt}>Already Registered? </Text>
+              <TouchableOpacity onPress={() => router.push('/newLogin' as any)}>
+                <Text style={styles.loginLink}>Login</Text>
+              </TouchableOpacity>
+            </View>
+      </View>
     </View>
   );
 }
@@ -100,7 +108,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#90b8a8' },
   card: {
     backgroundColor: '#90b8a8',
-    padding: 32, paddingTop: 60,
+    padding: 32, paddingTop: 30,
     alignItems: 'center',
   },
   heading: { fontSize: 22, fontWeight: '700', color: '#1a1a1a', marginBottom: 4 },   // ← missing
@@ -113,14 +121,9 @@ const styles = StyleSheet.create({
   continueBtn: {
     width: '100%', backgroundColor: '#1a1a1a',
     borderRadius: 12, padding: 16, alignItems: 'center',
-    marginBottom: 10
-  },
-  navtoLogin: {
-    width: '100%', backgroundColor: '#1a1a1a',
-    borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 10
+    marginBottom: 1
   },
   continueBtnText: { color: '#fff', fontWeight: '600', fontSize: 16},
-  navtoLoginText: { color: '#fff', fontWeight: '600', fontSize: 16 },
   dividerRow: {
     flexDirection: 'row', alignItems: 'center',
     marginHorizontal: 24, marginVertical: 20,
@@ -135,4 +138,27 @@ const styles = StyleSheet.create({
   },
   oauthIcon: { fontSize: 18, marginRight: 10, fontWeight: '700' },
   oauthText: { fontSize: 15, fontWeight: '500' },
+  registerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  loginPrompt: { fontSize: 14, color: '#2a2a2a' },
+  loginLink: { fontSize: 14, fontWeight: '700', color: '#1a1a1a', textDecorationLine: 'underline' },
+  passwordWrapper: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    marginBottom: 8,
+    paddingRight: 14,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 14,
+    fontSize: 15,
+  },
+  showBtn: { paddingVertical: 4, paddingHorizontal: 6 },
+  showBtnText: { fontSize: 13, color: '#555', fontWeight: '500' },
 });
