@@ -12,6 +12,7 @@ export default function App() {
     title: string;
     date: string;
     entry: string;
+    book: string;
     status: "Started" | "Finished";
     image: string | null;
   };
@@ -49,7 +50,7 @@ in reading novels and love historical books.
         </Text>
         <View style={styles.row}>
           <Feather name="book" size={24} color="black" />
-          <Text style= {{fontSize:15, fontWeight:'400'}}>Public Journal Entries: 10</Text>
+          <Text style= {{fontSize:15, fontWeight:'400'}}>Public Journal Entries: {entries.length}</Text>
         </View>
         <CustomSwitch selected={selected} onSelectChange={setSelected} />
         <View style={{ flex: 1, width: "100%" }}>
@@ -108,6 +109,7 @@ in reading novels and love historical books.
                     content={item.entry}
                     status={item.status}
                     image={item.image}
+                    book={item.book}
                     onEdit={()=>{
                       setEditingIndex(index);
                       setPopupVisible(true);

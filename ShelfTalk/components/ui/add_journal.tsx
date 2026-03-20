@@ -1,4 +1,6 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { GoogleGenAI } from "@google/genai";
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import React, {useState} from "react";
 import{Modal, View, Text, TextInput, Pressable, StyleSheet, Image, Platform, Alert} from "react-native";
 import {useEffect} from "react";
@@ -14,13 +16,17 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
     const [title, setTitle] = useState("");
     const [date, setDate] = useState("");
     const [entry, setEntry] = useState("");
+    const [book, setBook]=useState("");
     const [status, setStatus] = useState("Started");
     const [image, setImage] = useState<string | null>(null);
+    const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
     useEffect(() => {
         if (initialData) {
             setTitle(initialData.title);
             setDate(initialData.date);
             setEntry(initialData.entry);
+            setBook(initialData.book);
             setStatus(initialData.status);
             setImage(initialData.image);
         } else {
@@ -28,6 +34,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             setTitle("");
             setDate("");
             setEntry("");
+            setBook("");
             setStatus("Started");
             setImage(null);
         }
@@ -51,11 +58,34 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
         }
 
     };
+    const handleGeneratePrompt = async () => {
+        try {
+            if (!book.trim()) return;
+
+            const response = await fetch(`${API_URL}/generatePrompt`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ book }),
+            });
+
+            const data = await response.json();
+
+            if (data.prompt) {
+            setTitle(data.prompt);
+            }
+
+        } catch (err) {
+            console.error("Error generating prompt:", err);
+        }
+        };
+
+
     const handleSubmit=()=>{
         onSubmit({
             title,
             date,
             entry,
+            book,
             status,
             image,
         });
@@ -64,6 +94,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             setTitle("");
             setDate("");
             setEntry("");
+            setBook("");
             setStatus("Started");
             setImage(null);
         }
@@ -77,15 +108,29 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
         <View style={styles.overlay}>
             <View style={styles.popup}>
             <Text style={styles.header}>New Journal Entry</Text>
-
             <TextInput
                 style={styles.input}
-                placeholder="Title"
+                placeholder="Book Title"
                 placeholderTextColor="#7A7A7A" 
-                value={title}
-                onChangeText={setTitle}
+                value={book}
+                onChangeText={setBook}
             />
+            <View style={styles.row}>
+                <View style={{ flex: 1 }}>
+                <TextInput
+                    style={[styles.input, {height:"auto"}]}
+                    placeholder="Journaling Prompt"
+                    placeholderTextColor="#7A7A7A" 
+                    value={title}
+                    onChangeText={setTitle}
+                />
+                </View>
+                <Pressable style={styles.promptButton} onPress={handleGeneratePrompt}>
+                    <FontAwesome5 name="dice" size={20} color="black" />
+                </Pressable>
 
+
+            </View>
             <TextInput
                 style={styles.input}
                 placeholder="Date (e.g. 3/11/2026)"
@@ -93,6 +138,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
                 value={date}
                 onChangeText={setDate}
             />
+           
 
             <Pressable style={styles.imagePicker} onPress={pickImage}>
                 {image ? (
@@ -102,7 +148,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
                 )}
             </Pressable>
             <TextInput
-                style={[styles.input, { height: 80 }]}
+                style={[styles.input,styles.entryBox]}
                 placeholder="Write your entry..."
                 placeholderTextColor="#7A7A7A" 
                 value={entry}
@@ -151,11 +197,33 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             justifyContent: "center",
             alignItems: "center",
         },
+        promptButton: {
+            width: 45,
+            height: 45,
+            borderRadius: 8,
+            backgroundColor: "#EDEDED",
+            justifyContent: "center",
+            alignItems: "center",
+            },
+
+        row: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8, // optional, RN 0.71+
+            },
+
         popup: {
-            width: 320,
+            width: "85%",
+            height:"70%",
             padding: 20,
             backgroundColor: "white",
             borderRadius: 12,
+        },
+        entryBox:{
+            flex: 1,
+            textAlignVertical:"top",
+            paddingTop:10,
+            
         },
         header: {
             fontSize: 18,
