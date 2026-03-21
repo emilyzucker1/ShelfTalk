@@ -6,6 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import JournalEntries from '../../components/ui/journal_entries';
 import ProfilePhoto from '../../components/ui/profile_photo';
 import CustomSwitch from '../../components/ui/switch';
+import EditProfileModal from '@/components/ui/edit_profile';
 
 export default function App() {
   type JournalEntry = {
@@ -21,6 +22,19 @@ export default function App() {
   const [entries, setEntries]=useState<JournalEntry[]>([]);
   const[popupVisible,setPopupVisible]=useState(false);
   const[editingIndex,setEditingIndex]=useState<number| null>(null);
+  const [username, setUsername] = useState("Username");
+  const [description, setDescription]= useState("Hi, this is " + {username} + ". I have a great interest in reading novels and love historical books.");
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [editProfileVisible, setEditProfileVisible] = useState(false);
+
+  const handleSaveProfile = (updated: { username: string; description: string; photoUrl: string | null }) => {
+    setUsername(updated.username);
+    setDescription(updated.description);
+    setProfilePhotoUrl(updated.photoUrl);
+    setEditProfileVisible(false);
+
+  };
+
   const handleNewEntry=(entryData: JournalEntry)=>{
     if (editingIndex !== null) {
       // EDITING an existing entry
@@ -41,12 +55,16 @@ export default function App() {
       <View style={styles.topHalf}>
         </View>
       <View style={styles.photoWrapper}>
-        <ProfilePhoto />
+        <View style={styles.photoWrapper}>
+          <ProfilePhoto
+            photoUrl={profilePhotoUrl}
+            onEdit={() => setEditProfileVisible(true)}
+          />
+        </View>
       </View>
       <View style={styles.bottomHalf}>
-        <Text style={{fontSize:30, fontWeight:'500'}}>Username</Text>
-        <Text style={{width:350,fontSize:15, fontWeight:'400', color:'#748B97', textAlign:'center', paddingTop:20}}> Hi, this is yourname. I have a great interest
-in reading novels and love historical books.
+        <Text style={{fontSize:30, fontWeight:'500'}}>{username}</Text>
+        <Text style={{width:350,fontSize:15, fontWeight:'400', color:'#748B97', textAlign:'center', paddingTop:20}}> {description}
         </Text>
         <View style={styles.row}>
           <Feather name="book" size={24} color="black" />
@@ -122,6 +140,14 @@ in reading novels and love historical books.
           )}
         </View>
       </View>
+      <EditProfileModal
+        visible={editProfileVisible}
+        onClose={() => setEditProfileVisible(false)}
+        username={username}
+        photoUrl={profilePhotoUrl}
+        description={description}
+        onSave={handleSaveProfile}
+      />
     </View>
   );
 }
@@ -148,7 +174,7 @@ const styles = StyleSheet.create({
   },
   photoWrapper:{
     position:'absolute',
-    top:85,
+    top:40,
     left:'50%',
     transform:[{translateX:-75}],
     zIndex:10,
