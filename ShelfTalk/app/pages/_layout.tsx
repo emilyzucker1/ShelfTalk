@@ -7,9 +7,41 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged, getAuth, User } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useRouter } from 'expo-router';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [authInitialized, setAuthInitialized] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setAuthInitialized(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (authInitialized && !user) {
+      // User is not authenticated, redirect to login
+      router.replace('/newLogin');
+    }
+  }, [authInitialized, user, router]);
+
+  // Show loading or redirect if not authenticated
+  if (!authInitialized) {
+    return <View style={{ flex: 1, backgroundColor: '#E6F2F0' }} />;
+  }
+
+  if (!user) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <Tabs

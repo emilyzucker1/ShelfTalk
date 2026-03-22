@@ -9,6 +9,7 @@ import {
 export async function registerUser(
   email: string,
   password: string,
+  username: string,
   router: Router,
 ) {
   const auth = getAuth();
@@ -23,9 +24,9 @@ export async function registerUser(
     const user = userCredential.user;
 
     // Update the user's displayName with the provided name
-    // if (user) {
-    //   await updateProfile(user, { displayName: name });
-    // }
+    if (user) {
+      await updateProfile(user, { displayName: username });
+    }
 
     // Send a verification email
     alert("Your account has been registered.");
@@ -36,7 +37,7 @@ export async function registerUser(
     console.error("Error during registration:", error);
     //throw new Error(error.message || "Failed to register user");
   } finally {
-    router.replace("/");
+    router.replace("/newLogin");
   }
 }
 
@@ -53,7 +54,7 @@ export const loginUserwithEmailandPassword = async (
       password,
     );
     const result = userCredential.user;
-    router.replace("/testing");
+    router.replace("/pages");
   } catch (error) {
     alert("Your username or password is incorrect.");
     console.error("nothing happened");
