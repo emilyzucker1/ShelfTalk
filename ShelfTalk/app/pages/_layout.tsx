@@ -27,7 +27,7 @@ export default function TabLayout() {
   useEffect(() => {
     if (authInitialized && !user) {
       // User is not authenticated, redirect to login
-      // debug malu: router.replace('/newLogin');
+      router.replace('/newLogin');
     }
   }, [authInitialized, user, router]);
 
@@ -35,10 +35,10 @@ export default function TabLayout() {
   if (!authInitialized) {
     return <View style={{ flex: 1, backgroundColor: '#E6F2F0' }} />;
   }
-  // debug malu below
-  // if (!user) {
-  //   return null; // Will redirect in useEffect
-  // }
+
+  if (!user) {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <Tabs

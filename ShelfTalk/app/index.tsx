@@ -55,9 +55,7 @@ export default function LoadingScreen() {
         if (user) {
           router.replace('/pages' as any);
         } else {
-          // debug malu: router.replace('/newLogin' as any);
-          //debug malu:
-          router.replace('/pages/search' as any);
+          router.replace('/newLogin' as any);
         }
       });
     }, 4000);
