@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, TextInput, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-import { signOut, getAuth } from 'firebase/auth';
-import { auth } from './firebase';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useRouter } from 'expo-router';
+import { signOut } from 'firebase/auth';
 import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { auth } from './firebase';
 
 export default function SettingsPage() {
   const router = useRouter();
