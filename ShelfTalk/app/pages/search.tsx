@@ -62,7 +62,7 @@ export default function TabTwoScreen() {
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={{ flex: 1 / 4, padding: 4 }}
-                        onPress={() => router.push(`/pages/book?id=${item.id}&title=${item.title}`)}
+                        onPress={() => router.push(`/book?id=${item.id}&title=${item.title}`)}
                     >
                         {item.coverUrl ? (
                             <Image source={{ uri: item.coverUrl }} style={{ width: '100%', aspectRatio: 2 / 3 }} />
