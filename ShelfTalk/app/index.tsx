@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Image } from 'react-native';
-import * as SplashScreen from 'expo-splash-screen';
-import { useRouter } from 'expo-router';
-import { useFonts, Roboto_400Regular, Roboto_500Medium, Roboto_700Bold } from '@expo-google-fonts/roboto';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
+import { Roboto_400Regular, Roboto_500Medium, Roboto_700Bold, useFonts } from '@expo-google-fonts/roboto';
+import { useRouter } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import { auth } from './firebase';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function LoadingScreen() {
   const router = useRouter();
   const fadeAnim = new Animated.Value(0);
+  const [authInitialized, setAuthInitialized] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   const [fontsLoaded] = useFonts({
     Roboto_400Regular,
@@ -22,7 +26,17 @@ export default function LoadingScreen() {
   });
 
   useEffect(() => {
-    if (!fontsLoaded) return; // ✅ wait for fonts before animating
+    // Listen for authentication state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setAuthInitialized(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!fontsLoaded || !authInitialized) return; // ✅ wait for fonts and auth before animating
 
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -37,11 +51,16 @@ export default function LoadingScreen() {
         useNativeDriver: true,
       }).start(async () => {
         await SplashScreen.hideAsync();
-        router.replace('/newLogin' as any);
+        // Redirect based on authentication state
+        if (user) {
+          router.replace('/pages' as any);
+        } else {
+          router.replace('/newLogin' as any);
+        }
       });
     }, 4000);
     return () => clearTimeout(timer);
-  }, [fontsLoaded]); // ✅ re-run when fonts are ready
+  }, [fontsLoaded, authInitialized, user]); // ✅ re-run when fonts, auth, and user state are ready
 
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>

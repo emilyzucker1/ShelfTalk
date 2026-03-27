@@ -8,8 +8,10 @@ import ProfilePhoto from '../../components/ui/profile_photo';
 import CustomSwitch from '../../components/ui/switch';
 import EditProfileModal from '@/components/ui/edit_profile';
 import { Platform } from "react-native";
+import { useRouter } from 'expo-router';
 
 export default function App() {
+  const router = useRouter();
   type JournalEntry = {
     title: string;
     date: string;
@@ -55,6 +57,9 @@ export default function App() {
     <View style={styles.pageWrapper}>
     <View style={styles.container}>
       <View style={styles.topHalf}>
+        <Pressable style={styles.settingsButton} onPress={() => router.push('/settings')}>
+          <Feather name="settings" size={24} color="white" />
+        </Pressable>
         </View>
       <View style={styles.photoWrapper}>
         <View style={styles.photoWrapper}>
@@ -194,6 +199,14 @@ const styles = StyleSheet.create({
     zIndex: 10,
     alignItems: "center",
   },
+  settingsButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    padding: 10,
+  },
+  
+
 
   bottomHalf: {
     flex: 1,

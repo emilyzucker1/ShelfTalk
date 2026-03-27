@@ -6,6 +6,7 @@ import { onGoogleButtonPress } from './firebase/authentication/googleauth';
 import Svg, { Path } from 'react-native-svg';
 import { useFonts, Roboto_400Regular, Roboto_500Medium, Roboto_700Bold } from '@expo-google-fonts/roboto';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
+import { loginUserwithEmailandPassword } from "./firebase/authentication/emailauth";
 
 function GoogleIcon() {
   return (
@@ -21,11 +22,14 @@ function GoogleIcon() {
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  
+  const handleLogin = () => {
+    loginUserwithEmailandPassword(email, password, router);
+  };
+
   const [fontsLoaded] = useFonts({
     Roboto_400Regular,
     Roboto_500Medium,
@@ -37,10 +41,6 @@ export default function LoginScreen() {
   });
 
   if (!fontsLoaded) return <View />;
-
-  const handleLogin = () => {
-    console.log('Login:', { username, password });
-  };
 
   return (
     <View style={styles.container}>
@@ -55,12 +55,12 @@ export default function LoginScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="Username"
+          placeholder="Email"
           placeholderTextColor="#aaa"
           autoCapitalize="none"
           autoCorrect={false}
-          value={username}
-          onChangeText={setUsername}
+          value={email}
+          onChangeText={setEmail}
         />
 
         <View style={styles.passwordWrapper}>
