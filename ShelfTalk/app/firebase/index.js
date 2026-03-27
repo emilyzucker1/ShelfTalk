@@ -3,6 +3,7 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+
 const apiKey =
   process.env.FIREBASE_API_KEY || Constants.expoConfig?.extra?.firebaseApiKey;
 

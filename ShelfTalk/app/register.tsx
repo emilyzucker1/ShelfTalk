@@ -2,7 +2,9 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { registerUser } from "./firebase/authentication/emailauth/index";
+import { createUserProfile } from "./backend/user_info";
 import { onGoogleButtonPress } from './firebase/authentication/googleauth';
+import {userID} from "./firebase"
 
 
 export default function LoginScreen() {
@@ -17,6 +19,9 @@ export default function LoginScreen() {
     try {
       const userCredential = await registerUser(email, password, username, router);
       const firebaseUser = userCredential?.user;
+      if (firebaseUser) {
+        await createUserProfile({email, username, userID})
+      }
     } catch (err) {
       console.error("Registration error:", err);
     } finally {
