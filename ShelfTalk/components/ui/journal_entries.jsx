@@ -12,7 +12,7 @@ export function formatStatus(status){
         return {box:"startedBox", style:"startedBoxText"}
     }
 }
-export default function JournalEntries({date, title, content, status, image, onEdit}) {
+export default function JournalEntries({date, title, content, status, visibility, image, onEdit}) {
     //this is to change the format depending on status.
     const{box, style}=formatStatus(status);
     //this is to pick the image for the journal entry
@@ -65,6 +65,7 @@ export default function JournalEntries({date, title, content, status, image, onE
             <View style={{flex:1, gap:5}}>
                 <Text style={{fontSize:10, fontWeight:'400', color:'#2F2F2F'}}>{date}</Text>
                 <Text style={{fontSize:13, fontWeight:'500'}}>{title}</Text>
+                <Text style={{fontSize:10, fontWeight:'500', color:'#605F5F'}}>{visibility}</Text>
                 <View style={styles[box]}>
                     <Text style={styles[style]}>{status}</Text>
                 </View>

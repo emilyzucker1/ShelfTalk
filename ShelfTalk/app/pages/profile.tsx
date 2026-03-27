@@ -1,20 +1,25 @@
 import AddJournal from '@/components/ui/add_journal';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import JournalEntries from '../../components/ui/journal_entries';
 import ProfilePhoto from '../../components/ui/profile_photo';
 import CustomSwitch from '../../components/ui/switch';
 import { useRouter } from 'expo-router';
+import { createPost } from "../backend/create_post";
+import { getUserPosts } from '../backend/get_post';
+import { userID, username } from '../firebase';
 
 export default function App() {
   const router = useRouter();
   type JournalEntry = {
+    id?: string;
     title: string;
     date: string;
     entry: string;
     status: "Started" | "Finished";
+    isPublic: boolean;
     image: string | null;
   };
 
@@ -22,7 +27,47 @@ export default function App() {
   const [entries, setEntries]=useState<JournalEntry[]>([]);
   const[popupVisible,setPopupVisible]=useState(false);
   const[editingIndex,setEditingIndex]=useState<number| null>(null);
-  const handleNewEntry=(entryData: JournalEntry)=>{
+
+  const mapPostToEntry = (post: any): JournalEntry => {
+    const isPublicValue =
+      post?.isPublic === true || post?.isPublic === "true" || post?.isPublic === "Public";
+
+    const mappedStatus: "Started" | "Finished" =
+      post?.status === "Finished"
+        ? "Finished"
+        : "Started";
+
+    return {
+      id: post?.id,
+      title: post?.book ?? "Untitled",
+      date: post?.createdAt?.toDate
+        ? post.createdAt.toDate().toLocaleDateString()
+        : "",
+      entry: post?.text ?? "",
+      status: mappedStatus,
+      isPublic: isPublicValue,
+      image: post?.image ?? null,
+    };
+  };
+
+  const loadEntries = async () => {
+    try {
+      const posts = await getUserPosts(userID);
+      if (!posts) {
+        setEntries([]);
+        return;
+      }
+      setEntries(posts.map(mapPostToEntry));
+    } catch (error) {
+      console.error("Failed to fetch posts:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadEntries();
+  }, []);
+
+  const handleNewEntry=async(entryData: JournalEntry)=>{
     if (editingIndex !== null) {
       // EDITING an existing entry
       const updated = [...entries];
@@ -32,7 +77,14 @@ export default function App() {
     } else {
       // ADDING a new entry
       setEntries(prev => [...prev, entryData]);
-      //its is where we recieve entry data, this is where we could connect it to the database.
+      
+      try {
+        await createPost(entryData.title, entryData.entry, userID, username, entryData.isPublic);
+        await loadEntries();
+      }
+      catch (error) {
+        console.error("Failed to create post in database:", error);
+      }
     }
   };
   
@@ -107,11 +159,12 @@ in reading novels and love historical books.
               >
                 {entries.map((item, index) => (
                   <JournalEntries
-                    key={index}
+                    key={item.id ?? index}
                     date={item.date}
                     title={item.title}
                     content={item.entry}
                     status={item.status}
+                    visibility={item.isPublic ? "Public" : "Private"}
                     image={item.image}
                     onEdit={()=>{
                       setEditingIndex(index);
