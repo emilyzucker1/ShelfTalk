@@ -19,6 +19,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
     const [entry, setEntry] = useState("");
     const [book, setBook]=useState("");
     const [status, setStatus] = useState("Started");
+    const [isPublic, setIsPublic] = useState(false);
     const [image, setImage] = useState<string | null>(null);
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
     const [loadingPrompt, setLoadingPrompt]=useState(false);
@@ -27,8 +28,9 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             setTitle(initialData.title);
             setDate(initialData.date);
             setEntry(initialData.entry);
-            setBook(initialData.book);
+            setBook(initialData?.book ?? initialData?.title ?? "");
             setStatus(initialData.status);
+            setIsPublic(Boolean(initialData.isPublic));
             setImage(initialData.image);
         } else {
             // Reset when adding a new entry
@@ -37,6 +39,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             setEntry("");
             setBook("");
             setStatus("Started");
+            setIsPublic(false);
             setImage(null);
         }
         }, [initialData, visible]);
@@ -90,8 +93,9 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             title,
             date,
             entry,
-            book,
+            book: book || title,
             status,
+            isPublic,
             image,
         });
         //reset fields
@@ -101,6 +105,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             setEntry("");
             setBook("");
             setStatus("Started");
+            setIsPublic(false);
             setImage(null);
         }
         
@@ -187,6 +192,28 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
                 onPress={() => setStatus("Finished")}
                 >
                 <Text>Finished</Text>
+                </Pressable>
+            </View>
+
+            <View style={styles.statusRow}>
+                <Pressable
+                style={[
+                    styles.statusButton,
+                    !isPublic && styles.activeStatus,
+                ]}
+                onPress={() => setIsPublic(false)}
+                >
+                <Text>Private</Text>
+                </Pressable>
+
+                <Pressable
+                style={[
+                    styles.statusButton,
+                    isPublic && styles.activeStatus,
+                ]}
+                onPress={() => setIsPublic(true)}
+                >
+                <Text>Public</Text>
                 </Pressable>
             </View>
             <Pressable style={styles.submitButton} onPress={handleSubmit}>

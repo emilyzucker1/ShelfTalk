@@ -17,11 +17,6 @@ export default function ProfilePhoto({ photoUrl, onEdit }: ProfilePhotoProps) {
         </View>
       )}
 
-      <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-        <View style={styles.editCircle}>
-          <Ionicons name="pencil" size={16} color="white" />
-        </View>
-      </TouchableOpacity>
     </View>
   );
 }
