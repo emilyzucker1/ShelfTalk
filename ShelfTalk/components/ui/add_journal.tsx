@@ -28,7 +28,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             setTitle(initialData.title);
             setDate(initialData.date);
             setEntry(initialData.entry);
-            setBook(initialData.book);
+            setBook(initialData?.book ?? initialData?.title ?? "");
             setStatus(initialData.status);
             setIsPublic(Boolean(initialData.isPublic));
             setImage(initialData.image);
@@ -93,7 +93,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             title,
             date,
             entry,
-            book,
+            book: book || title,
             status,
             isPublic,
             image,

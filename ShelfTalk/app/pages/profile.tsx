@@ -20,7 +20,7 @@ export default function App() {
     title: string;
     date: string;
     entry: string;
-    book: string;
+    book?: string;
     status: "Started" | "Finished";
     isPublic: boolean;
     image: string | null;
@@ -31,18 +31,19 @@ export default function App() {
   const[popupVisible,setPopupVisible]=useState(false);
   const[editingIndex,setEditingIndex]=useState<number| null>(null);
 
-  const [username, setUsername] = useState("Username");
-  const [description, setDescription]= useState("Hi, this is " + {username} + ". I have a great interest in reading novels and love historical books.");
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  //const [username, setUsername] = useState("Username");
+  const [description, setDescription] = useState(
+    `Hi, this is ${username || "Username"}. I have a great interest in reading novels and love historical books.`
+  );  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
 
-  const handleSaveProfile = (updated: { username: string; description: string; photoUrl: string | null }) => {
-    setUsername(updated.username);
-    setDescription(updated.description);
-    setProfilePhotoUrl(updated.photoUrl);
-    setEditProfileVisible(false);
+  // const handleSaveProfile = (updated: { username: string; description: string; photoUrl: string | null }) => {
+  //   //setUsername(updated.username);
+  //   setDescription(updated.description);
+  //   setProfilePhotoUrl(updated.photoUrl);
+  //   setEditProfileVisible(false);
 
-  };
+  // };
 
   const mapPostToEntry = (post: any): JournalEntry => {
     const isPublicValue =
@@ -55,7 +56,8 @@ export default function App() {
 
     return {
       id: post?.id,
-      title: post?.book ?? "Untitled",
+      title: post?.title ?? post?.book ?? "Untitled",
+      book: post?.book ?? "Untitled",
       date: post?.createdAt?.toDate
         ? post.createdAt.toDate().toLocaleDateString()
         : "",
@@ -83,6 +85,8 @@ export default function App() {
     loadEntries();
   }, []);
 
+  const publicEntriesCount = entries.filter((entry) => entry.isPublic).length;
+
   const handleNewEntry=async(entryData: JournalEntry)=>{
     if (editingIndex !== null) {
       // EDITING an existing entry
@@ -95,7 +99,7 @@ export default function App() {
       setEntries(prev => [...prev, entryData]);
       
       try {
-        await createPost(entryData.title, entryData.entry, userID, username, entryData.isPublic);
+        await createPost(entryData.book ?? entryData.title, entryData.entry, userID, username, entryData.isPublic);
         await loadEntries();
       }
       catch (error) {
@@ -117,7 +121,6 @@ export default function App() {
         <View style={styles.photoWrapper}>
           <ProfilePhoto
             photoUrl={profilePhotoUrl}
-            onEdit={() => setEditProfileVisible(true)}
           />
         </View>
       </View>
@@ -127,7 +130,7 @@ export default function App() {
         </Text>
         <View style={styles.row}>
           <Feather name="book" size={24} color="black" />
-          <Text style= {{fontSize:15, fontWeight:'400'}}>Public Journal Entries: {entries.length}</Text>
+          <Text style= {{fontSize:15, fontWeight:'400'}}>Public Journal Entries: {publicEntriesCount}</Text>
         </View>
         <CustomSwitch selected={selected} onSelectChange={setSelected} />
         <View style={{ flex: 1, width: "100%" }}>
@@ -187,7 +190,6 @@ export default function App() {
                     status={item.status}
                     visibility={item.isPublic ? "Public" : "Private"}
                     image={item.image}
-                    book={item.book}
                     onEdit={()=>{
                       setEditingIndex(index);
                       setPopupVisible(true);
@@ -200,14 +202,6 @@ export default function App() {
           )}
         </View>
       </View>
-      <EditProfileModal
-        visible={editProfileVisible}
-        onClose={() => setEditProfileVisible(false)}
-        username={username}
-        photoUrl={profilePhotoUrl}
-        description={description}
-        onSave={handleSaveProfile}
-      />
     </View>
     </View>
   );

@@ -3,10 +3,9 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 type ProfilePhotoProps = {
   photoUrl: string | null;
-  onEdit: () => void;
 };
 
-export default function ProfilePhoto({ photoUrl, onEdit }: ProfilePhotoProps) {
+export default function ProfilePhoto({ photoUrl }: ProfilePhotoProps) {
   return (
     <View style={styles.container}>
       {photoUrl ? (
@@ -16,12 +15,6 @@ export default function ProfilePhoto({ photoUrl, onEdit }: ProfilePhotoProps) {
           <AntDesign name="user" size={80} color="black" />
         </View>
       )}
-
-      <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-        <View style={styles.editCircle}>
-          <Ionicons name="pencil" size={16} color="white" />
-        </View>
-      </TouchableOpacity>
     </View>
   );
 }
