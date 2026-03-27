@@ -5,6 +5,7 @@ import React, {useState} from "react";
 import{Modal, View, Text, TextInput, Pressable, StyleSheet, Image, Platform, Alert} from "react-native";
 import {useEffect} from "react";
 import * as ImagePicker from "expo-image-picker";
+import { ActivityIndicator } from "react-native";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 type Props = {
   visible: boolean;
@@ -20,7 +21,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
     const [status, setStatus] = useState("Started");
     const [image, setImage] = useState<string | null>(null);
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
+    const [loadingPrompt, setLoadingPrompt]=useState(false);
     useEffect(() => {
         if (initialData) {
             setTitle(initialData.title);
@@ -59,9 +60,10 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
 
     };
     const handleGeneratePrompt = async () => {
+        if (!book.trim()) return;
         try {
-            if (!book.trim()) return;
-
+            
+            setLoadingPrompt(true);
             const response = await fetch(`${API_URL}/generatePrompt`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -76,6 +78,9 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
 
         } catch (err) {
             console.error("Error generating prompt:", err);
+        }
+        finally{
+            setLoadingPrompt(false);
         }
         };
 
@@ -104,8 +109,10 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
     };
     return (
         <Modal visible={visible} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
+        <TouchableWithoutFeedback
+        onPress={Platform.OS === "web" ? undefined : Keyboard.dismiss}
+        >        
+            <View style={styles.overlay}>
             <View style={styles.popup}>
             <Text style={styles.header}>New Journal Entry</Text>
             <TextInput
@@ -125,9 +132,14 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
                     onChangeText={setTitle}
                 />
                 </View>
-                <Pressable style={styles.promptButton} onPress={handleGeneratePrompt}>
-                    <FontAwesome5 name="dice" size={20} color="black" />
-                </Pressable>
+                <Pressable style={styles.promptButton} onPress={handleGeneratePrompt} disabled={loadingPrompt}>
+                    {loadingPrompt ? (
+                        <ActivityIndicator size="small" color="black" />
+                    ) : (
+                        <FontAwesome5 name="dice" size={20} color="black" />
+                    )}
+                    </Pressable>
+
 
 
             </View>
@@ -213,18 +225,21 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             },
 
         popup: {
-            width: "85%",
-            height:"70%",
+            width: Platform.OS === "web" ? 500 : "85%",
+            height: Platform.OS === "web" ? "auto" : "70%",
+            maxHeight: "90%",
             padding: 20,
             backgroundColor: "white",
             borderRadius: 12,
         },
-        entryBox:{
+
+        entryBox: {
             flex: 1,
-            textAlignVertical:"top",
-            paddingTop:10,
-            
+            minHeight: 120,
+            textAlignVertical: "top",
+            paddingTop: 10,
         },
+
         header: {
             fontSize: 18,
             fontWeight: "600",

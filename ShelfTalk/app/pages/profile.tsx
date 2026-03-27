@@ -7,6 +7,7 @@ import JournalEntries from '../../components/ui/journal_entries';
 import ProfilePhoto from '../../components/ui/profile_photo';
 import CustomSwitch from '../../components/ui/switch';
 import EditProfileModal from '@/components/ui/edit_profile';
+import { Platform } from "react-native";
 
 export default function App() {
   type JournalEntry = {
@@ -51,6 +52,7 @@ export default function App() {
   
 
   return (
+    <View style={styles.pageWrapper}>
     <View style={styles.container}>
       <View style={styles.topHalf}>
         </View>
@@ -64,7 +66,7 @@ export default function App() {
       </View>
       <View style={styles.bottomHalf}>
         <Text style={{fontSize:30, fontWeight:'500'}}>{username}</Text>
-        <Text style={{width:350,fontSize:15, fontWeight:'400', color:'#748B97', textAlign:'center', paddingTop:20}}> {description}
+        <Text style={{width: Platform.OS === "web" ? "80%" : 350, maxWidth: 500, fontSize:15, fontWeight:'400', color:'#748B97', textAlign:'center', paddingTop:20}}> {description}
         </Text>
         <View style={styles.row}>
           <Feather name="book" size={24} color="black" />
@@ -149,14 +151,23 @@ export default function App() {
         onSave={handleSaveProfile}
       />
     </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#E6F2F0',
-  },
+    pageWrapper: {
+      flex: 1,
+      width:"100%",
+      alignItems: Platform.OS === "web" ? "center" : "stretch",
+      backgroundColor: "#E6F2F0",
+    },
+    container: {
+      width: Platform.OS === "web" ? 500 : "100%",
+      flex: 1,
+      backgroundColor: "#E6F2F0",
+    },
+
   row:{
     flexDirection:'row',
     alignItems:'center',
@@ -165,25 +176,29 @@ const styles = StyleSheet.create({
     gap:8,
 
   },
-  topHalf:{
+  topHalf: {
+    width: "100%",
+    height: Platform.OS === "web" ? 150 : "35%",
+    backgroundColor: "#90B8A8",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingTop: 60,
+  },
+
+
+  photoWrapper: {
+    position: "absolute",
+    top: Platform.OS === "web" ? 5 : 40,
+    left: "50%",
+    transform: [{ translateX: Platform.OS === "web" ? -40 : -75 }],
+    zIndex: 10,
+    alignItems: "center",
+  },
+
+  bottomHalf: {
     flex: 1,
-    backgroundColor:'#90B8A8',
-    justifyContent:'flex-start',
-    alignItems:'center',
-    paddingTop:60,
+    alignItems: "center",
+    paddingTop: 10,
   },
-  photoWrapper:{
-    position:'absolute',
-    top:40,
-    left:'50%',
-    transform:[{translateX:-75}],
-    zIndex:10,
-    alignItems:'center',
-  },
-  bottomHalf:{
-    flex: 3,
-    justifyContent:'flex-start',
-    alignItems:'center',
-    paddingTop:10,
-},
+
 });

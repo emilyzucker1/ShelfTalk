@@ -26,7 +26,7 @@ app.post("/generatePrompt", async (req, res) => {
       contents: `Generate a short, one-sentence journaling prompt inspired by the book "${book}".
         Keep it under 80 characters.
         Do NOT include explanations, introductions, or extra text.
-        Return ONLY the prompt no introduction like 'here's the prompt' also dont uses any special characters`,
+        Return ONLY the prompt no introduction like 'here's the prompt' also dont uses any special characters except for ones necessary for proper grammar`,
     });
 
     const text =
