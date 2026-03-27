@@ -64,6 +64,7 @@ export default function JournalEntries({date, title, content, status, visibility
             
             <View style={{flex:1, gap:5}}>
                 <Text style={{fontSize:10, fontWeight:'400', color:'#2F2F2F'}}>{date}</Text>
+                <Text style={{fontSize:11, fontWeith:'400', color:'#2f2f2f'}}>{book}</Text>
                 <Text style={{fontSize:13, fontWeight:'500'}}>{title}</Text>
                 <Text style={{fontSize:10, fontWeight:'500', color:'#605F5F'}}>{visibility}</Text>
                 <View style={styles[box]}>

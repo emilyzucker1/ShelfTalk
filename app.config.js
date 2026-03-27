@@ -8,6 +8,7 @@ module.exports = () => ({
   expo: {
     ...appJson.expo,
     extra: {
+      API_URL: process.env.API_URL,
       ...(appJson.expo?.extra || {}),
       firebaseApiKey: process.env.FIREBASE_API_KEY,
     },
