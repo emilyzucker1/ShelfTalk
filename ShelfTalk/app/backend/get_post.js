@@ -1,10 +1,11 @@
-import { collection, getDocs, or, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase/index.js";
 
 
 export async function getUserPosts(authorId) {
   try {
-    const q = query(collection(db, "posts"), or(where("authorId", "==", authorId), where("isPublic", "==", true)));
+    // Profile page should only return posts owned by the current user.
+    const q = query(collection(db, "posts"), where("authorId", "==", authorId));
 
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({
