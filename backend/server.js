@@ -26,9 +26,9 @@ app.post("/analyzeBookImage", upload.single("image"), async (req, res) => {
     const visionResponse = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [
-        `Identify the book in the image. 
+        `Identify if there is a book cover in the image. 
          Return ONLY the exact book title with no punctuation, no quotes, no extra words. 
-         If no book is visible, return "NONE".`,
+         If no book cover is visible, return "NONE".`,
         {
           inlineData: {
             data: imageBytes.toString("base64"),
