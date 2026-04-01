@@ -11,9 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 
-// ----------------------
 // ANALYZE BOOK IMAGE
-// ----------------------
 app.post("/analyzeBookImage", async (req, res) => {
   try {
     const { image, mimeType } = req.body;
@@ -24,23 +22,24 @@ app.post("/analyzeBookImage", async (req, res) => {
 
     const imageBuffer = Buffer.from(image, "base64");
 
-    const model = ai.models.getGenerativeModel({
+    const visionResponse = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
+      contents: [
+        {
+          inlineData: {
+            data: imageBuffer.toString("base64"),
+            mimeType: mimeType || "image/jpeg",
+          },
+        },
+        `Identify the book in this image.
+         Return ONLY the exact book title.
+         If no book is visible, return "NONE".`
+      ],
     });
 
-    const visionResponse = await model.generateContent([
-      {
-        inlineData: {
-          data: imageBuffer.toString("base64"),
-          mimeType: mimeType || "image/jpeg",
-        },
-      },
-      `Identify the book in this image.
-       Return ONLY the exact book title.
-       If no book is visible, return "NONE".`
-    ]);
-
-    let bookTitle = visionResponse.response.text().trim();
+    let bookTitle =
+      visionResponse?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "NONE";
 
     if (bookTitle === "NONE") {
       return res.json({
@@ -56,13 +55,18 @@ app.post("/analyzeBookImage", async (req, res) => {
       .split(",")[0]
       .trim();
 
-    const promptResponse = await model.generateContent([
-      `Generate a short, one-sentence journaling prompt inspired by the book "${bookTitle}".
-       Keep it under 80 characters.
-       Return ONLY the prompt.`
-    ]);
+    const promptResponse = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        `Generate a short, one-sentence journaling prompt inspired by the book "${bookTitle}".
+         Keep it under 80 characters.
+         Return ONLY the prompt.`
+      ],
+    });
 
-    const prompt = promptResponse.response.text().trim();
+    const prompt =
+      promptResponse?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "No prompt generated";
 
     res.json({ book: bookTitle, prompt });
 
@@ -72,9 +76,7 @@ app.post("/analyzeBookImage", async (req, res) => {
   }
 });
 
-// ----------------------
 // GENERATE PROMPT
-// ----------------------
 app.post("/generatePrompt", async (req, res) => {
   try {
     const { book } = req.body;
