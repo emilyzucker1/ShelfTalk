@@ -9,7 +9,7 @@ import CustomSwitch from '../../components/ui/switch';
 import EditProfileModal from '@/components/ui/edit_profile';
 import { Platform } from "react-native";
 import { useRouter } from 'expo-router';
-
+import BookShelf from "../../components/ui/book_shelf";
 export default function App() {
   const router = useRouter();
   type JournalEntry = {
@@ -29,6 +29,30 @@ export default function App() {
   const [description, setDescription]= useState("Hi, this is " + {username} + ". I have a great interest in reading novels and love historical books.");
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
+  //load in actual shelve data from database
+  const dummyShelves = [
+    {
+      id: 1,
+      title: "The Night Circus",
+      author: "Erin Morgenstern",
+      cover: "https://covers.openlibrary.org/b/id/8231856-L.jpg",
+      status: "Finished",
+    },
+    {
+      id: 2,
+      title: "Atomic Habits",
+      author: "James Clear",
+      cover: "https://covers.openlibrary.org/b/id/9874151-L.jpg",
+      status: "Currently Reading",
+    },
+    {
+      id: 3,
+      title: "The Song of Achilles",
+      author: "Madeline Miller",
+      cover: "https://covers.openlibrary.org/b/id/10521241-L.jpg",
+      status: "Currently Reading",
+    },
+  ];
 
   const handleSaveProfile = (updated: { username: string; description: string; photoUrl: string | null }) => {
     setUsername(updated.username);
@@ -51,6 +75,7 @@ export default function App() {
       //its is where we recieve entry data, this is where we could connect it to the database.
     }
   };
+  
   
 
   return (
@@ -144,6 +169,23 @@ export default function App() {
 
               </ScrollView>
             </>
+          )}
+          {selected === "shelves" && (
+            <ScrollView
+              style={{ flex: 1, width: "100%" }}
+              contentContainerStyle={{ paddingVertical: 20, paddingHorizontal: 20 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {dummyShelves.map((book) => (
+                <BookShelf
+                  key={book.id}
+                  title={book.title}
+                  cover_image={book.cover}
+                  status={book.status}
+                />
+              ))}
+            </ScrollView>
+
           )}
         </View>
       </View>
