@@ -2,6 +2,8 @@ import Constants from "expo-constants";
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
 
 const apiKey =
   process.env.FIREBASE_API_KEY || Constants.expoConfig?.extra?.firebaseApiKey;
@@ -25,6 +27,7 @@ const shelftalkApp = getApps().length
   : initializeApp(firebaseConfig);
 
 const db = getFirestore(shelftalkApp);
+const storage = getStorage(shelftalkApp);
 
 const googleAuthProvider = new GoogleAuthProvider();
 const auth = getAuth(shelftalkApp);
@@ -42,5 +45,5 @@ onAuthStateChanged(auth, (userParam) => {
   }
 });
 
-export { auth, db, email, googleAuthProvider, user, userID, username };
+export { auth, db, email, googleAuthProvider, storage, user, userID, username };
 

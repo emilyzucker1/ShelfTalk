@@ -65,6 +65,12 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
       }}>
 
+
+      <Tabs.Screen
+        name="home"
+        options={{ href: null }}
+      />
+
       <Tabs.Screen
         name="index"
         options={{
