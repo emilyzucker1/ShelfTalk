@@ -83,17 +83,17 @@ app.post("/generatePrompt", async (req, res) => {
       return res.status(400).json({ error: "Book title is required" });
     }
 
-    const model = ai.models.getGenerativeModel({
+    const result = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
+      contents: `Generate a short, one-sentence journaling prompt inspired by the book "${book}".
+        Keep it under 80 characters.
+        Do NOT include explanations, introductions, or extra text.
+        Return ONLY the prompt no introduction like 'here's the prompt' also dont uses any special characters except for ones necessary for proper grammar`,
     });
 
-    const result = await model.generateContent([
-      `Generate a short, one-sentence journaling prompt inspired by the book "${book}".
-       Keep it under 80 characters.
-       Return ONLY the prompt.`
-    ]);
-
-    const text = result.response.text().trim();
+    const text =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No prompt generated";
 
     res.json({ prompt: text });
 
@@ -102,5 +102,6 @@ app.post("/generatePrompt", async (req, res) => {
     res.status(500).json({ error: "Failed to generate prompt" });
   }
 });
+
 
 app.listen(3000, () => console.log("Backend running on port 3000"));
