@@ -58,7 +58,13 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             quality:1,
         });
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
+            const uri = result.assets[0].uri;
+            setImage(uri);
+
+            // Only call AI if fields are empty
+            if (!book.trim() || !title.trim()) {
+            analyzeImage(uri);
+        }
         }
 
     };
@@ -84,6 +90,37 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
         }
         finally{
             setLoadingPrompt(false);
+        }
+        };
+    const analyzeImage = async (uri: string) => {
+        try {
+            const formData = new FormData();
+            formData.append("image", {
+            uri,
+            name: "photo.jpg",
+            type: "image/jpeg",
+            } as any);
+
+            const response = await fetch(`${API_URL}/analyzeBookImage`, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            });
+
+            const data = await response.json();
+
+            // Only fill fields if user hasn't typed anything
+            if (!book.trim() && data.book) {
+            setBook(data.book);
+            }
+
+            if (!title.trim() && data.prompt) {
+            setTitle(data.prompt);
+            }
+        } catch (err) {
+            console.error("Error analyzing image:", err);
         }
         };
 

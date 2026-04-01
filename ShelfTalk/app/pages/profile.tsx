@@ -9,6 +9,7 @@ import CustomSwitch from '../../components/ui/switch';
 import EditProfileModal from '@/components/ui/edit_profile';
 import { Platform } from "react-native";
 import { useRouter } from 'expo-router';
+import BookShelf from "../../components/ui/book_shelf";
 import { createPost } from "../backend/create_post";
 import { getUserPosts } from '../backend/get_post';
 import { getUserProfile } from '../backend/user_info';
@@ -37,6 +38,30 @@ export default function App() {
   const [description, setDescription] = useState(defaultDescription);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
+  //load in actual shelve data from database
+  const dummyShelves = [
+    {
+      id: 1,
+      title: "The Night Circus",
+      author: "Erin Morgenstern",
+      cover: "https://covers.openlibrary.org/b/id/8231856-L.jpg",
+      status: "Finished",
+    },
+    {
+      id: 2,
+      title: "Atomic Habits",
+      author: "James Clear",
+      cover: "https://covers.openlibrary.org/b/id/9874151-L.jpg",
+      status: "Currently Reading",
+    },
+    {
+      id: 3,
+      title: "The Song of Achilles",
+      author: "Madeline Miller",
+      cover: "https://covers.openlibrary.org/b/id/10521241-L.jpg",
+      status: "Currently Reading",
+    },
+  ];
 
   const mapPostToEntry = (post: any): JournalEntry => {
     const isPublicValue =
@@ -133,6 +158,7 @@ export default function App() {
     }
   };
   
+  
 
   return (
     <View style={styles.pageWrapper}>
@@ -223,6 +249,23 @@ export default function App() {
 
               </ScrollView>
             </>
+          )}
+          {selected === "shelves" && (
+            <ScrollView
+              style={{ flex: 1, width: "100%" }}
+              contentContainerStyle={{ paddingVertical: 20, paddingHorizontal: 20 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {dummyShelves.map((book) => (
+                <BookShelf
+                  key={book.id}
+                  title={book.title}
+                  cover_image={book.cover}
+                  status={book.status}
+                />
+              ))}
+            </ScrollView>
+
           )}
         </View>
       </View>
