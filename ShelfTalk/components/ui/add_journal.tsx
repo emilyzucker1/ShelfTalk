@@ -23,9 +23,10 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
     const [image, setImage] = useState<string | null>(null);
     const API_URL = process.env.EXPO_PUBLIC_API_URL;
     const [loadingPrompt, setLoadingPrompt]=useState(false);
+    const [analyzingImage, setAnalyzingImage] = useState(false);
     useEffect(() => {
         if (initialData) {
-            setTitle(initialData.title);
+            setTitle(initialData?.question ?? initialData?.title ?? "");
             setDate(initialData.date);
             setEntry(initialData.entry);
             setBook(initialData?.book ?? initialData?.title ?? "");
@@ -51,15 +52,29 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
                 return;
             }
         }
-        let result=await ImagePicker.launchImageLibraryAsync({
+        let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing:true,
-            aspect:[4,3],
-            quality:1,
-        });
+            allowsEditing: true,
+            quality: 0.6,
+            base64: true,   // required for ai to work
+            });
+
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
+            const asset = result.assets[0];
+
+            setImage(asset.uri);
+
+            // Ensure base64 exists
+            if (!asset.base64) {
+                console.error("No base64 data returned from ImagePicker");
+                return;
+            }
+
+            if (!book.trim() || !title.trim()) {
+                analyzeImage(asset.uri, asset.base64, asset.mimeType || "image/jpeg");
+            }
         }
+
 
     };
     const handleGeneratePrompt = async () => {
@@ -86,11 +101,37 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             setLoadingPrompt(false);
         }
         };
+    const analyzeImage = async (uri: string, base64: string, mimeType: string) => {
+        try {
+            setAnalyzingImage(true);
+
+            const response = await fetch(`${API_URL}/analyzeBookImage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                image: base64,
+                mimeType,
+            }),
+            });
+
+            const data = await response.json();
+
+            if (!book.trim() && data.book) setBook(data.book);
+            if (!title.trim() && data.prompt) setTitle(data.prompt);
+
+        } catch (err) {
+            console.error("Error analyzing image:", err);
+        } finally {
+            setAnalyzingImage(false);
+        }
+        };
+
 
 
     const handleSubmit=()=>{
         onSubmit({
             title,
+            question: title,
             date,
             entry,
             book: book || title,
@@ -159,11 +200,20 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
 
             <Pressable style={styles.imagePicker} onPress={pickImage}>
                 {image ? (
-                <Image source={{ uri: image }} style={styles.imagePreview} />
+                    <View style={{ width: "100%", height: "100%" }}>
+                    <Image source={{ uri: image }} style={styles.imagePreview} />
+
+                    {analyzingImage && (
+                        <View style={styles.loadingOverlay}>
+                        <ActivityIndicator size="large" color="#fff" />
+                        </View>
+                    )}
+                    </View>
                 ) : (
-                <Text style={{ color: "#666" }}>Pick an Image</Text>
+                    <Text style={{ color: "#666" }}>Pick an Image</Text>
                 )}
             </Pressable>
+
             <TextInput
                 style={[styles.input,styles.entryBox]}
                 placeholder="Write your entry..."
@@ -172,28 +222,6 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
                 onChangeText={setEntry}
                 multiline
             />
-
-            <View style={styles.statusRow}>
-                <Pressable
-                style={[
-                    styles.statusButton,
-                    status === "Started" && styles.activeStatus,
-                ]}
-                onPress={() => setStatus("Started")}
-                >
-                <Text>Started</Text>
-                </Pressable>
-
-                <Pressable
-                style={[
-                    styles.statusButton,
-                    status === "Finished" && styles.activeStatus,
-                ]}
-                onPress={() => setStatus("Finished")}
-                >
-                <Text>Finished</Text>
-                </Pressable>
-            </View>
 
             <View style={styles.statusRow}>
                 <Pressable
@@ -236,6 +264,18 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
             justifyContent: "center",
             alignItems: "center",
         },
+        loadingOverlay: {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            alignItems: "center",
+            borderRadius: 8,
+            },
+
         promptButton: {
             width: 45,
             height: 45,

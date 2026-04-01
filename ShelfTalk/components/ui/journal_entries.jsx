@@ -2,26 +2,14 @@ import React, {useState} from 'react';
 import {Button,Text, Image, View, Platform, Alert, Pressable, StyleSheet} from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
-export function formatStatus(status){
-    
-    const lower=status.toLowerCase();
-    if (lower.includes("finished")){
-        return {box: "finishedBox", style:"finishedBoxText"};
-    }
-    if(lower.includes("started")){
-        return {box:"startedBox", style:"startedBoxText"}
-    }
-}
-export default function JournalEntries({date, title, book = "", content, status, visibility, image, onEdit}) {
-    //this is to change the format depending on status.
-    const{box, style}=formatStatus(status);
+export default function JournalEntries({date, title, book = "", content, visibility, image, onEdit}) {
     //this is to pick the image for the journal entry
     
     const styles = StyleSheet.create({
-        finishedBox: {
-        backgroundColor: "#91DBBD",
+        visibilityBox: {
+        backgroundColor: visibility === "Public" ? "#91DBBD" : "#748B97",
         borderWidth: 2,
-        borderColor: "#91DBBD",
+        borderColor: visibility === "Public" ? "#91DBBD" : "#748B97",
         paddingVertical: 2,
         paddingHorizontal: 6,
         borderRadius: 7.4,
@@ -29,26 +17,9 @@ export default function JournalEntries({date, title, book = "", content, status,
         alignItems:"center",
         
     },
-    finishedBoxText: {
-        color: "#356E35",
+    visibilityBoxText: {
+        color: visibility === "Public" ? "#356E35" : "#E6F2F0",
         fontSize: 12,
-        fontWeight: "500",
-    },
-    startedBox: {
-        backgroundColor: "#748B97",
-        borderWidth: 2,
-        borderColor: "#748B97",
-        paddingVertical: 2,
-        paddingHorizontal: 6,
-        borderRadius: 7.4,
-        width:90,
-        alignItems:"center",
-        
-        
-    },
-    startedBoxText: {
-        color: "#E6F2F0",
-        fontSize: 8,
         fontWeight: "500",
     },
     });
@@ -66,9 +37,8 @@ export default function JournalEntries({date, title, book = "", content, status,
                 <Text style={{fontSize:10, fontWeight:'400', color:'#2F2F2F'}}>{date}</Text>
                 <Text style={{fontSize:11, fontWeight:'400', color:'#2f2f2f'}}>{book}</Text>
                 <Text style={{fontSize:13, fontWeight:'500'}}>{title}</Text>
-                <Text style={{fontSize:10, fontWeight:'500', color:'#605F5F'}}>{visibility}</Text>
-                <View style={styles[box]}>
-                    <Text style={styles[style]}>{status}</Text>
+                <View style={styles.visibilityBox}>
+                    <Text style={styles.visibilityBoxText}>{visibility}</Text>
                 </View>
                 
             </View>

@@ -9,12 +9,15 @@ import CustomSwitch from '../../components/ui/switch';
 import EditProfileModal from '@/components/ui/edit_profile';
 import { Platform } from "react-native";
 import { useRouter } from 'expo-router';
+import BookShelf from "../../components/ui/book_shelf";
 import { createPost } from "../backend/create_post";
 import { getUserPosts } from '../backend/get_post';
+import { getUserProfile } from '../backend/user_info';
 import { userID, username } from '../firebase';
 
 export default function App() {
   const router = useRouter();
+  const defaultDescription = `Hi, this is ${username || "Username"}. I have a great interest in reading novels and love historical books.`;
   type JournalEntry = {
     id?: string;
     title: string;
@@ -32,18 +35,33 @@ export default function App() {
   const[editingIndex,setEditingIndex]=useState<number| null>(null);
 
   //const [username, setUsername] = useState("Username");
-  const [description, setDescription] = useState(
-    `Hi, this is ${username || "Username"}. I have a great interest in reading novels and love historical books.`
-  );  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [description, setDescription] = useState(defaultDescription);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
-
-  // const handleSaveProfile = (updated: { username: string; description: string; photoUrl: string | null }) => {
-  //   //setUsername(updated.username);
-  //   setDescription(updated.description);
-  //   setProfilePhotoUrl(updated.photoUrl);
-  //   setEditProfileVisible(false);
-
-  // };
+  //load in actual shelve data from database
+  const dummyShelves = [
+    {
+      id: 1,
+      title: "The Night Circus",
+      author: "Erin Morgenstern",
+      cover: "https://covers.openlibrary.org/b/id/8231856-L.jpg",
+      status: "Finished",
+    },
+    {
+      id: 2,
+      title: "Atomic Habits",
+      author: "James Clear",
+      cover: "https://covers.openlibrary.org/b/id/9874151-L.jpg",
+      status: "Currently Reading",
+    },
+    {
+      id: 3,
+      title: "The Song of Achilles",
+      author: "Madeline Miller",
+      cover: "https://covers.openlibrary.org/b/id/10521241-L.jpg",
+      status: "Currently Reading",
+    },
+  ];
 
   const mapPostToEntry = (post: any): JournalEntry => {
     const isPublicValue =
@@ -81,8 +99,33 @@ export default function App() {
     }
   };
 
+  const loadUserProfile = async () => {
+    try {
+      const profile = await getUserProfile(userID);
+      const userBio = (profile as { bio?: unknown } | null)?.bio;
+      const userPhotoUrl = (profile as { photoURL?: unknown } | null)?.photoURL;
+
+      if (typeof userBio === 'string' && userBio.trim().length > 0) {
+        setDescription(userBio);
+      } else {
+        setDescription(defaultDescription);
+      }
+
+      if (typeof userPhotoUrl === 'string' && userPhotoUrl.trim().length > 0) {
+        setProfilePhotoUrl(userPhotoUrl);
+      } else {
+        setProfilePhotoUrl(null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+      setDescription(defaultDescription);
+      setProfilePhotoUrl(null);
+    }
+  };
+
   useEffect(() => {
     loadEntries();
+    loadUserProfile();
   }, []);
 
   const publicEntriesCount = entries.filter((entry) => entry.isPublic).length;
@@ -99,7 +142,14 @@ export default function App() {
       setEntries(prev => [...prev, entryData]);
       
       try {
-        await createPost(entryData.book ?? entryData.title, entryData.entry, userID, username, entryData.isPublic);
+        await createPost(
+          entryData.book ?? entryData.title,
+          entryData.entry,
+          userID,
+          username,
+          entryData.isPublic,
+          entryData.title,
+        );
         await loadEntries();
       }
       catch (error) {
@@ -107,6 +157,7 @@ export default function App() {
       }
     }
   };
+  
   
 
   return (
@@ -187,7 +238,6 @@ export default function App() {
                     date={item.date}
                     title={item.title}
                     content={item.entry}
-                    status={item.status}
                     visibility={item.isPublic ? "Public" : "Private"}
                     image={item.image}
                     onEdit={()=>{
@@ -199,6 +249,23 @@ export default function App() {
 
               </ScrollView>
             </>
+          )}
+          {selected === "shelves" && (
+            <ScrollView
+              style={{ flex: 1, width: "100%" }}
+              contentContainerStyle={{ paddingVertical: 20, paddingHorizontal: 20 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {dummyShelves.map((book) => (
+                <BookShelf
+                  key={book.id}
+                  title={book.title}
+                  cover_image={book.cover}
+                  status={book.status}
+                />
+              ))}
+            </ScrollView>
+
           )}
         </View>
       </View>

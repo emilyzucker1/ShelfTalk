@@ -2,17 +2,83 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+
 dotenv.config();
 
-console.log("Starting server…");
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_CLOUD_API_KEY });
+
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
+// ANALYZE BOOK IMAGE
+app.post("/analyzeBookImage", async (req, res) => {
+  try {
+    const { image, mimeType } = req.body;
+
+    if (!image) {
+      return res.status(400).json({ error: "No image provided" });
+    }
+
+    const imageBuffer = Buffer.from(image, "base64");
+
+    const visionResponse = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        {
+          inlineData: {
+            data: imageBuffer.toString("base64"),
+            mimeType: mimeType || "image/jpeg",
+          },
+        },
+        `Identify the book in this image.
+         Return ONLY the exact book title.
+         If no book is visible, return "NONE".`
+      ],
+    });
+    console.log("VISION RAW RESPONSE:", JSON.stringify(visionResponse, null, 2));
+
+
+    let bookTitle =
+      visionResponse?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "NONE";
+
+    if (bookTitle === "NONE") {
+      return res.json({
+        book: null,
+        prompt: null,
+        error: "NO_BOOK_FOUND",
+      });
+    }
+
+    bookTitle = bookTitle
+      .replace(/by .*/i, "")
+      .replace(/[^a-zA-Z0-9 ':-]/g, "")
+      .split(",")[0]
+      .trim();
+
+    const promptResponse = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        `Generate a short, one-sentence journaling prompt inspired by the book "${bookTitle}".
+         Keep it under 80 characters.
+         Return ONLY the prompt.`
+      ],
+    });
+
+    const prompt =
+      promptResponse?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+      "No prompt generated";
+
+    res.json({ book: bookTitle, prompt });
+
+  } catch (err) {
+    console.error("Gemini error:", err);
+    res.status(500).json({ error: err.message || "Failed to analyze image" });
+  }
 });
 
+// GENERATE PROMPT
 app.post("/generatePrompt", async (req, res) => {
   try {
     const { book } = req.body;
