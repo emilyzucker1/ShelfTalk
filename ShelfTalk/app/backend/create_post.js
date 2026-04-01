@@ -10,6 +10,7 @@ export async function createPost(book, text, authorID, username, isPublic) {
       isPublic: isPublic,
       book: book,
       text: text,
+      likeCount: 0, //new field to keep track of the number of likes on a post
       createdAt: serverTimestamp(),
     });
     return docRef.id;
