@@ -36,6 +36,8 @@ app.post("/analyzeBookImage", async (req, res) => {
          If no book is visible, return "NONE".`
       ],
     });
+    console.log("VISION RAW RESPONSE:", JSON.stringify(visionResponse, null, 2));
+
 
     let bookTitle =
       visionResponse?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
