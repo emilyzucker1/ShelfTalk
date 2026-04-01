@@ -11,6 +11,7 @@ export async function createPost(book, text, authorID, username, isPublic, quest
       book: book,
       question: question,
       text: text,
+      likeCount: 0, //new field to keep track of the number of likes on a post
       createdAt: serverTimestamp(),
     });
     return docRef.id;
