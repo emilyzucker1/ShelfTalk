@@ -16,3 +16,17 @@ export async function getUserPosts(authorId) {
     console.log("Error fetching data:", e);
   }
 }
+
+export async function getPublicPosts() {
+  try {
+    const q = query(collection(db, "posts"), where("isPublic", "==", true));
+
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (e) {
+    console.log("Error fetching public posts:", e);
+  }
+}

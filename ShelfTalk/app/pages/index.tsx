@@ -13,7 +13,7 @@ import {
   View,
   Image,
 } from 'react-native';
-//import { getPublicPosts } from '../backend/get_post';
+import { getPublicPosts } from '../backend/get_post';
 // import { getFollowingPosts } from '../backend/get_post';
 import { userID } from '../firebase';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -29,7 +29,6 @@ type Post = {
   entry: string;        // the journaling prompt / question
   entryBody: string;    // the written answer body
   date: string;
-  status: 'New Entry' | 'Started' | 'Finished';
   image: string | null;
   likes: number;
   comments: number;
@@ -41,22 +40,29 @@ type Post = {
 
 const mapPostToFeedItem = (post: any, followingIds: string[] = []): Post => ({
   id: post?.id ?? Math.random().toString(),
-  userId: post?.userId,
+  userId: post?.authorId,
   username: post?.username ?? 'Reader',
   userAvatar: post?.userAvatar ?? null,
   book: post?.book ?? post?.title ?? 'Untitled',
-  entry: post?.prompt ?? post?.title ?? '',
+  entry: post?.question ?? post?.prompt ?? post?.title ?? '',
   entryBody: post?.text ?? '',
   date: post?.createdAt?.toDate
     ? post.createdAt.toDate().toLocaleDateString()
     : '',
-  status: post?.status === 'Finished' ? 'Finished' : post?.status === 'New Entry' ? 'New Entry' : 'Started',
   image: post?.image ?? null,
   likes: post?.likes ?? 0,
   comments: post?.comments ?? 0,
   liked: post?.likedBy?.includes(userID) ?? false,
-  isFollowing: followingIds.includes(post?.userId),
+  isFollowing: followingIds.includes(post?.authorId),
 });
+
+const sortPostsByCreatedAt = (posts: any[]) => {
+  return [...posts].sort((a, b) => {
+    const aMs = a?.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+    const bMs = b?.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+    return bMs - aMs;
+  });
+};
 
 const COVER_COLORS = ['#d4907a', '#90B8A8', '#a890b8', '#909ab8', '#b8a890'];
 
@@ -129,7 +135,6 @@ function PostCard({
         <View style={cardStyles.metaCol}>
           <View style={cardStyles.nameRow}>
             <Text style={cardStyles.name}>{post.username}</Text>
-            <Text style={cardStyles.statusInline}>{post.status}</Text>
           </View>
           <Text style={cardStyles.date}>{post.date}</Text>
         </View>
@@ -210,7 +215,6 @@ const cardStyles = StyleSheet.create({
   metaCol: { flex: 1 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   name: { fontSize: 14, fontWeight: '700', color: '#1a2a24' },
-  statusInline: { fontSize: 12, color: '#748B97', fontWeight: '400' },
   date: { fontSize: 11, color: '#748B97', marginTop: 1 },
   followBtn: {
     backgroundColor: '#90B8A8',
@@ -264,74 +268,21 @@ const cardStyles = StyleSheet.create({
   actionText: { fontSize: 13, color: '#1a2a24', fontWeight: '400' },
 });
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-const MOCK_POSTS: Post[] = [
-  {
-    id: '1',
-    username: 'Helena',
-    book: 'A Change Encounter',
-    entry: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit?',
-    entryBody:
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum!',
-    date: '10 min ago',
-    status: 'New Entry',
-    image: null,
-    likes: 30,
-    comments: 10,
-    liked: false,
-    isFollowing: false,
-  },
-  {
-    id: '2',
-    username: 'Marcus',
-    book: 'The Quiet Hours',
-    entry: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit?',
-    entryBody:
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum!',
-    date: '2 hrs ago',
-    status: 'Started',
-    image: null,
-    likes: 14,
-    comments: 5,
-    liked: true,
-    isFollowing: true,
-  },
-  {
-    id: '3',
-    username: 'Priya',
-    book: 'Borrowed Moonlight',
-    entry: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit?',
-    entryBody:
-      'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum!',
-    date: 'Yesterday',
-    status: 'Finished',
-    image: null,
-    likes: 47,
-    comments: 23,
-    liked: false,
-    isFollowing: false,
-  },
-];
-
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
   const router = useRouter();
   const [tab, setTab] = useState<'following' | 'explore'>('following');
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadPosts = async () => {
     setLoading(true);
     try {
-      // Replace with real backend when ready:
-      // const raw = tab === 'following'
-      //   ? await getFollowingPosts(userID)
-      //   : await getPublicPosts();
-      // setPosts((raw ?? []).map(p => mapPostToFeedItem(p)));
-      setPosts(MOCK_POSTS);
+      const raw = await getPublicPosts();
+      const sortedRaw = sortPostsByCreatedAt(raw ?? []);
+      setPosts(sortedRaw.map(p => mapPostToFeedItem(p)));
     } catch (err) {
       console.error('Failed to load posts:', err);
     } finally {

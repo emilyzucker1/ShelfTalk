@@ -117,7 +117,14 @@ export default function App() {
       setEntries(prev => [...prev, entryData]);
       
       try {
-        await createPost(entryData.book ?? entryData.title, entryData.entry, userID, username, entryData.isPublic);
+        await createPost(
+          entryData.book ?? entryData.title,
+          entryData.entry,
+          userID,
+          username,
+          entryData.isPublic,
+          entryData.title,
+        );
         await loadEntries();
       }
       catch (error) {
@@ -205,7 +212,6 @@ export default function App() {
                     date={item.date}
                     title={item.title}
                     content={item.entry}
-                    status={item.status}
                     visibility={item.isPublic ? "Public" : "Private"}
                     image={item.image}
                     onEdit={()=>{

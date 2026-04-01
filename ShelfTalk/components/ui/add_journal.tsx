@@ -25,7 +25,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
     const [loadingPrompt, setLoadingPrompt]=useState(false);
     useEffect(() => {
         if (initialData) {
-            setTitle(initialData.title);
+            setTitle(initialData?.question ?? initialData?.title ?? "");
             setDate(initialData.date);
             setEntry(initialData.entry);
             setBook(initialData?.book ?? initialData?.title ?? "");
@@ -91,6 +91,7 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
     const handleSubmit=()=>{
         onSubmit({
             title,
+            question: title,
             date,
             entry,
             book: book || title,
@@ -172,28 +173,6 @@ export default function AddJournal({visible, onClose, onSubmit, initialData}:Pro
                 onChangeText={setEntry}
                 multiline
             />
-
-            <View style={styles.statusRow}>
-                <Pressable
-                style={[
-                    styles.statusButton,
-                    status === "Started" && styles.activeStatus,
-                ]}
-                onPress={() => setStatus("Started")}
-                >
-                <Text>Started</Text>
-                </Pressable>
-
-                <Pressable
-                style={[
-                    styles.statusButton,
-                    status === "Finished" && styles.activeStatus,
-                ]}
-                onPress={() => setStatus("Finished")}
-                >
-                <Text>Finished</Text>
-                </Pressable>
-            </View>
 
             <View style={styles.statusRow}>
                 <Pressable
