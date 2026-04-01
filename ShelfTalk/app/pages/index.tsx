@@ -1,6 +1,5 @@
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -271,7 +270,6 @@ const cardStyles = StyleSheet.create({
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
-  const router = useRouter();
   const [tab, setTab] = useState<'following' | 'explore'>('following');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
@@ -323,9 +321,6 @@ export default function HomeScreen() {
         {/* ── Header ── */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Home</Text>
-          <Pressable style={styles.settingsBtn} onPress={() => router.push('/settings')}>
-            <Feather name="settings" size={22} color="#2e3a35" />
-          </Pressable>
         </View>
 
         {/* ── Following / Explore tabs ── */}
@@ -425,12 +420,6 @@ headerTitle: {
   color: '#1a2a24',
   letterSpacing: 0.3,
 },
-  settingsBtn: {
-    position: 'absolute',
-    right: 20,
-    top: Platform.OS === 'ios' ? 62 : 42,
-    padding: 6,
-  },
   tabRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,

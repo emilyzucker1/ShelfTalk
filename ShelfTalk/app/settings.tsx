@@ -180,12 +180,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 80,
     paddingBottom: 20,
     backgroundColor: '#90B8A8',
   },
   backButton: {
-    padding: 8,
+    padding: 1,
   },
   headerTitle: {
     fontSize: 20,
