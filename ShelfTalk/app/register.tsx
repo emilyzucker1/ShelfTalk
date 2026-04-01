@@ -52,7 +52,7 @@ export default function RegisterScreen() {
     } catch (err) {
       console.error("Registration error:", err);
     } finally {
-      router.replace("./pages/index");
+      router.replace("/newLogin");
     }
   };
 

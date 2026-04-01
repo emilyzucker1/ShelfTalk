@@ -11,10 +11,12 @@ import { Platform } from "react-native";
 import { useRouter } from 'expo-router';
 import { createPost } from "../backend/create_post";
 import { getUserPosts } from '../backend/get_post';
+import { getUserProfile } from '../backend/user_info';
 import { userID, username } from '../firebase';
 
 export default function App() {
   const router = useRouter();
+  const defaultDescription = `Hi, this is ${username || "Username"}. I have a great interest in reading novels and love historical books.`;
   type JournalEntry = {
     id?: string;
     title: string;
@@ -32,18 +34,9 @@ export default function App() {
   const[editingIndex,setEditingIndex]=useState<number| null>(null);
 
   //const [username, setUsername] = useState("Username");
-  const [description, setDescription] = useState(
-    `Hi, this is ${username || "Username"}. I have a great interest in reading novels and love historical books.`
-  );  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [description, setDescription] = useState(defaultDescription);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
-
-  // const handleSaveProfile = (updated: { username: string; description: string; photoUrl: string | null }) => {
-  //   //setUsername(updated.username);
-  //   setDescription(updated.description);
-  //   setProfilePhotoUrl(updated.photoUrl);
-  //   setEditProfileVisible(false);
-
-  // };
 
   const mapPostToEntry = (post: any): JournalEntry => {
     const isPublicValue =
@@ -81,8 +74,33 @@ export default function App() {
     }
   };
 
+  const loadUserProfile = async () => {
+    try {
+      const profile = await getUserProfile(userID);
+      const userBio = (profile as { bio?: unknown } | null)?.bio;
+      const userPhotoUrl = (profile as { photoURL?: unknown } | null)?.photoURL;
+
+      if (typeof userBio === 'string' && userBio.trim().length > 0) {
+        setDescription(userBio);
+      } else {
+        setDescription(defaultDescription);
+      }
+
+      if (typeof userPhotoUrl === 'string' && userPhotoUrl.trim().length > 0) {
+        setProfilePhotoUrl(userPhotoUrl);
+      } else {
+        setProfilePhotoUrl(null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+      setDescription(defaultDescription);
+      setProfilePhotoUrl(null);
+    }
+  };
+
   useEffect(() => {
     loadEntries();
+    loadUserProfile();
   }, []);
 
   const publicEntriesCount = entries.filter((entry) => entry.isPublic).length;
