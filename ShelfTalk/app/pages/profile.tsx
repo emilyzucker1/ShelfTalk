@@ -1,19 +1,19 @@
 import AddJournal from '@/components/ui/add_journal';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
+import { collection, getDocs } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import JournalEntries from '../../components/ui/journal_entries';
 import ProfilePhoto from '../../components/ui/profile_photo';
 import CustomSwitch from '../../components/ui/switch';
 import EditProfileModal from '@/components/ui/edit_profile';
 import { Platform } from "react-native";
 import { useRouter } from 'expo-router';
-import BookShelf from "../../components/ui/book_shelf";
 import { createPost } from "../backend/create_post";
 import { getUserPosts } from '../backend/get_post';
 import { getUserProfile } from '../backend/user_info';
-import { userID, username } from '../firebase';
+import { db, userID, username } from '../firebase';
 
 export default function App() {
   const router = useRouter();
@@ -29,6 +29,18 @@ export default function App() {
     image: string | null;
   };
 
+  type ShelfBook = {
+    id: string;
+    title: string;
+    coverUrl: string | null;
+  };
+
+  type ShelfGroup = {
+    id: string;
+    name: string;
+    books: ShelfBook[];
+  };
+
   const [selected, setSelected] = useState("journal");
   const [entries, setEntries]=useState<JournalEntry[]>([]);
   const[popupVisible,setPopupVisible]=useState(false);
@@ -38,30 +50,7 @@ export default function App() {
   const [description, setDescription] = useState(defaultDescription);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
-  //load in actual shelve data from database
-  const dummyShelves = [
-    {
-      id: 1,
-      title: "The Night Circus",
-      author: "Erin Morgenstern",
-      cover: "https://covers.openlibrary.org/b/id/8231856-L.jpg",
-      status: "Finished",
-    },
-    {
-      id: 2,
-      title: "Atomic Habits",
-      author: "James Clear",
-      cover: "https://covers.openlibrary.org/b/id/9874151-L.jpg",
-      status: "Currently Reading",
-    },
-    {
-      id: 3,
-      title: "The Song of Achilles",
-      author: "Madeline Miller",
-      cover: "https://covers.openlibrary.org/b/id/10521241-L.jpg",
-      status: "Currently Reading",
-    },
-  ];
+  const [shelfGroups, setShelfGroups] = useState<ShelfGroup[]>([]);
 
   const mapPostToEntry = (post: any): JournalEntry => {
     const isPublicValue =
@@ -99,6 +88,42 @@ export default function App() {
     }
   };
 
+  const loadShelfBooks = async () => {
+    try {
+      const shelvesRef = collection(db, 'users', userID, 'shelves');
+      const shelvesSnapshot = await getDocs(shelvesRef);
+
+      const groups = await Promise.all(
+        shelvesSnapshot.docs.map(async (shelfDoc) => {
+          const shelfData = shelfDoc.data() as { name?: string };
+          const shelfName = shelfData?.name ?? 'Shelf';
+          const booksRef = collection(db, 'users', userID, 'shelves', shelfDoc.id, 'books');
+          const booksSnapshot = await getDocs(booksRef);
+
+          const books = booksSnapshot.docs.map((bookDoc) => {
+            const bookData = bookDoc.data() as { title?: string; coverUrl?: string | null };
+            return {
+              id: bookDoc.id,
+              title: bookData?.title ?? 'Untitled',
+              coverUrl: bookData?.coverUrl ?? null,
+            };
+          });
+
+          return {
+            id: shelfDoc.id,
+            name: shelfName,
+            books,
+          };
+        }),
+      );
+
+      setShelfGroups(groups);
+    } catch (error) {
+      console.error('Failed to fetch shelf books:', error);
+      setShelfGroups([]);
+    }
+  };
+
   const loadUserProfile = async () => {
     try {
       const profile = await getUserProfile(userID);
@@ -126,6 +151,7 @@ export default function App() {
   useEffect(() => {
     loadEntries();
     loadUserProfile();
+    loadShelfBooks();
   }, []);
 
   const publicEntriesCount = entries.filter((entry) => entry.isPublic).length;
@@ -256,14 +282,31 @@ export default function App() {
               contentContainerStyle={{ paddingVertical: 20, paddingHorizontal: 20 }}
               showsVerticalScrollIndicator={false}
             >
-              {dummyShelves.map((book) => (
-                <BookShelf
-                  key={book.id}
-                  title={book.title}
-                  cover_image={book.cover}
-                  status={book.status}
-                />
-              ))}
+              {shelfGroups.length === 0 ? (
+                <Text style={{ color: '#748B97', textAlign: 'center' }}>No shelves yet.</Text>
+              ) : (
+                shelfGroups.map((shelf) => (
+                  <View key={shelf.id} style={styles.shelfGroupContainer}>
+                    <Text style={styles.shelfGroupTitle}>{shelf.name}</Text>
+                    {shelf.books.length === 0 ? (
+                      <Text style={styles.emptyShelfText}>No books in this shelf.</Text>
+                    ) : (
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shelfBooksRow}>
+                        {shelf.books.map((book) => (
+                          <View key={`${shelf.id}-${book.id}`} style={styles.shelfBookCard}>
+                            {book.coverUrl ? (
+                              <Image source={{ uri: book.coverUrl }} style={styles.shelfCover} />
+                            ) : (
+                              <View style={[styles.shelfCover, styles.shelfCoverPlaceholder]} />
+                            )}
+                            <Text style={styles.shelfBookTitle} numberOfLines={2}>{book.title}</Text>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    )}
+                  </View>
+                ))
+              )}
             </ScrollView>
 
           )}
@@ -326,6 +369,41 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingTop: 10,
+  },
+  shelfGroupContainer: {
+    marginBottom: 20,
+  },
+  shelfGroupTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2F2F2F',
+    marginBottom: 10,
+  },
+  shelfBooksRow: {
+    gap: 12,
+    paddingRight: 10,
+  },
+  shelfBookCard: {
+    width: 86,
+  },
+  shelfCover: {
+    width: 86,
+    height: 126,
+    borderRadius: 4,
+    backgroundColor: '#CCC',
+  },
+  shelfCoverPlaceholder: {
+    backgroundColor: '#C9D1CE',
+  },
+  shelfBookTitle: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#2F2F2F',
+  },
+  emptyShelfText: {
+    fontSize: 12,
+    color: '#748B97',
   },
 
 });

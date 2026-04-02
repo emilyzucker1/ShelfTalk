@@ -1,13 +1,14 @@
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { signOut } from 'firebase/auth';
+import { deleteUser, signOut } from 'firebase/auth';
+import { deleteDoc, doc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { getUserProfile, updateUserProfile } from './backend/user_info';
-import { auth, storage } from './firebase';
+import { auth, db, storage } from './firebase';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function SettingsPage() {
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState('');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -114,6 +116,55 @@ export default function SettingsPage() {
     }
   };
 
+  const deleteAccount = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      Alert.alert('Not signed in', 'Please sign in again to delete your account.');
+      return;
+    }
+
+    try {
+      setIsDeletingAccount(true);
+      const currentUserId = currentUser.uid;
+
+      await deleteUser(currentUser);
+
+      try {
+        await deleteDoc(doc(db, 'users', currentUserId));
+      } catch (cleanupError) {
+        console.error('Profile cleanup failed after account deletion:', cleanupError);
+      }
+
+      Alert.alert('Account deleted', 'Your account has been deleted.');
+      router.replace('/newLogin');
+    } catch (error) {
+      const errorCode = (error as { code?: string })?.code;
+      if (errorCode === 'auth/requires-recent-login') {
+        Alert.alert('Re-authentication required', 'Please log in again and retry deleting your account.');
+      } else {
+        console.error('Error deleting account:', error);
+        Alert.alert('Delete failed', 'We could not delete your account. Please try again.');
+      }
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
+  const handleDeleteAccountPress = () => {
+    Alert.alert(
+      'Delete account?',
+      'This action is permanent and cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: deleteAccount,
+        },
+      ],
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -163,6 +214,16 @@ export default function SettingsPage() {
 
           <Pressable style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutText}>Log Out</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.deleteAccountButton}
+            onPress={handleDeleteAccountPress}
+            disabled={isDeletingAccount}
+          >
+            <Text style={styles.deleteAccountText}>
+              {isDeletingAccount ? 'Deleting Account...' : 'Delete Account'}
+            </Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -277,6 +338,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  deleteAccountButton: {
+    backgroundColor: '#D9534F',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  deleteAccountText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
