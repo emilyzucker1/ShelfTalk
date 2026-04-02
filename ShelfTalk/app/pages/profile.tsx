@@ -1,7 +1,8 @@
 import AddJournal from '@/components/ui/add_journal';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Feather from '@expo/vector-icons/Feather';
-import { collection, getDocs } from 'firebase/firestore';
+import { useFocusEffect } from 'expo-router';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import JournalEntries from '../../components/ui/journal_entries';
@@ -13,11 +14,11 @@ import { useRouter } from 'expo-router';
 import { createPost } from "../backend/create_post";
 import { getUserPosts } from '../backend/get_post';
 import { getUserProfile } from '../backend/user_info';
-import { db, userID, username } from '../firebase';
+import { getUserShelfGroups } from '../../hooks/use-shelves';
+import { auth } from '../firebase';
 
 export default function App() {
   const router = useRouter();
-  const defaultDescription = `Hi, this is ${username || "Username"}. I have a great interest in reading novels and love historical books.`;
   type JournalEntry = {
     id?: string;
     title: string;
@@ -41,12 +42,15 @@ export default function App() {
     books: ShelfBook[];
   };
 
+  const [currentUser, setCurrentUser] = useState<User | null>(auth.currentUser);
   const [selected, setSelected] = useState("journal");
   const [entries, setEntries]=useState<JournalEntry[]>([]);
   const[popupVisible,setPopupVisible]=useState(false);
   const[editingIndex,setEditingIndex]=useState<number| null>(null);
 
   //const [username, setUsername] = useState("Username");
+  const displayName = currentUser?.displayName ?? 'Username';
+  const defaultDescription = `Hi, this is ${displayName}. I have a great interest in reading novels and love historical books.`;
   const [description, setDescription] = useState(defaultDescription);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [editProfileVisible, setEditProfileVisible] = useState(false);
@@ -75,9 +79,9 @@ export default function App() {
     };
   };
 
-  const loadEntries = async () => {
+  const loadEntries = async (currentUserId: string) => {
     try {
-      const posts = await getUserPosts(userID);
+      const posts = await getUserPosts(currentUserId);
       if (!posts) {
         setEntries([]);
         return;
@@ -90,33 +94,7 @@ export default function App() {
 
   const loadShelfBooks = async () => {
     try {
-      const shelvesRef = collection(db, 'users', userID, 'shelves');
-      const shelvesSnapshot = await getDocs(shelvesRef);
-
-      const groups = await Promise.all(
-        shelvesSnapshot.docs.map(async (shelfDoc) => {
-          const shelfData = shelfDoc.data() as { name?: string };
-          const shelfName = shelfData?.name ?? 'Shelf';
-          const booksRef = collection(db, 'users', userID, 'shelves', shelfDoc.id, 'books');
-          const booksSnapshot = await getDocs(booksRef);
-
-          const books = booksSnapshot.docs.map((bookDoc) => {
-            const bookData = bookDoc.data() as { title?: string; coverUrl?: string | null };
-            return {
-              id: bookDoc.id,
-              title: bookData?.title ?? 'Untitled',
-              coverUrl: bookData?.coverUrl ?? null,
-            };
-          });
-
-          return {
-            id: shelfDoc.id,
-            name: shelfName,
-            books,
-          };
-        }),
-      );
-
+      const groups = await getUserShelfGroups();
       setShelfGroups(groups);
     } catch (error) {
       console.error('Failed to fetch shelf books:', error);
@@ -124,9 +102,9 @@ export default function App() {
     }
   };
 
-  const loadUserProfile = async () => {
+  const loadUserProfile = async (currentUserId: string) => {
     try {
-      const profile = await getUserProfile(userID);
+      const profile = await getUserProfile(currentUserId);
       const userBio = (profile as { bio?: unknown } | null)?.bio;
       const userPhotoUrl = (profile as { photoURL?: unknown } | null)?.photoURL;
 
@@ -149,10 +127,42 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadEntries();
-    loadUserProfile();
-    loadShelfBooks();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const currentUserId = currentUser?.uid;
+
+    if (!currentUserId) {
+      setEntries([]);
+      setShelfGroups([]);
+      setDescription(defaultDescription);
+      setProfilePhotoUrl(null);
+      return;
+    }
+
+    loadEntries(currentUserId);
+    loadUserProfile(currentUserId);
+    loadShelfBooks();
+  }, [currentUser?.uid, defaultDescription]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const currentUserId = auth.currentUser?.uid;
+
+      if (!currentUserId) {
+        return;
+      }
+
+      loadEntries(currentUserId);
+      loadUserProfile(currentUserId);
+      loadShelfBooks();
+    }, [defaultDescription])
+  );
 
   const publicEntriesCount = entries.filter((entry) => entry.isPublic).length;
 
@@ -171,12 +181,14 @@ export default function App() {
         await createPost(
           entryData.book ?? entryData.title,
           entryData.entry,
-          userID,
-          username,
+          currentUser?.uid ?? '',
+          displayName,
           entryData.isPublic,
           entryData.title,
         );
-        await loadEntries();
+        if (currentUser?.uid) {
+          await loadEntries(currentUser.uid);
+        }
       }
       catch (error) {
         console.error("Failed to create post in database:", error);
@@ -202,7 +214,7 @@ export default function App() {
         </View>
       </View>
       <View style={styles.bottomHalf}>
-        <Text style={{fontSize:30, fontWeight:'500'}}>{username}</Text>
+        <Text style={{fontSize:30, fontWeight:'500'}}>{displayName}</Text>
         <Text style={{width: Platform.OS === "web" ? "80%" : 350, maxWidth: 500, fontSize:15, fontWeight:'400', color:'#748B97', textAlign:'center', paddingTop:20}}> {description}
         </Text>
         <View style={styles.row}>

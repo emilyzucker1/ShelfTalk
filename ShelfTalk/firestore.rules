@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function canReadPost(postId) {
+      let post = get(/databases/$(database)/documents/posts/$(postId));
+      return post.data.isPublic == true || (signedIn() && post.data.authorId == request.auth.uid);
+    }
+
+    match /users/{userId} {
+      allow read, create, update, delete: if isOwner(userId);
+
+      match /shelves/{shelfId} {
+        allow read, create, update, delete: if isOwner(userId);
+
+        match /books/{bookId} {
+          allow read, create, update, delete: if isOwner(userId);
+        }
+      }
+    }
+
+    match /books/{bookId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if false;
+    }
+
+    match /posts/{postId} {
+      allow read: if resource.data.isPublic == true || (signedIn() && resource.data.authorId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.authorId == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow read: if canReadPost(postId);
+        allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      }
+
+      match /likes/{userId} {
+        allow read: if canReadPost(postId);
+        allow create, delete: if isOwner(userId);
+        allow update: if false;
+      }
+    }
+  }
+}

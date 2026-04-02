@@ -4,7 +4,6 @@ import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { registerUser } from "./firebase/authentication/emailauth/index";
 import { createUserProfile } from "./backend/user_info";
 import { onGoogleButtonPress } from './firebase/authentication/googleauth';
-import { userID } from "./firebase";
 import { AntDesign } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
 import { useFonts, Roboto_400Regular, Roboto_500Medium, Roboto_700Bold } from '@expo-google-fonts/roboto';
@@ -47,7 +46,11 @@ export default function RegisterScreen() {
       const userCredential = await registerUser(email, password, username, router);
       const firebaseUser = userCredential?.user;
       if (firebaseUser) {
-        await createUserProfile({ email, username, userID });
+        await createUserProfile({
+          email: firebaseUser.email ?? email,
+          username: firebaseUser.displayName ?? username,
+          userID: firebaseUser.uid,
+        });
       }
     } catch (err) {
       console.error("Registration error:", err);

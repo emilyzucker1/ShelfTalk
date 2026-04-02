@@ -1,5 +1,5 @@
 import { addDoc, collection, limit as firestoreLimit, getDocs, query, where } from "firebase/firestore";
-import { db } from '../firebase';
+import { db } from '../app/firebase';
 //import { logSearch } from "./book_log";
 import { Book, normalizeDoc, searchOpenLibrary } from "./openlib_lookup";
 
@@ -8,19 +8,23 @@ export async function searchAndLog(
   limit: number = 10,
   userId?: string
 ): Promise<Book[]> {
+  let books: Book[] = [];
 
-  //Check our Firestore first
-  const booksRef = collection(db, "books");
-  const localQuery = query(
-    booksRef,
-    where("title", ">=", queryStr),
-    where("title", "<=", queryStr + "\uf8ff"),
-    firestoreLimit(limit)
-  );
-  const snapshot = await getDocs(localQuery);
-  let books: Book[] = snapshot.docs.map(doc => doc.data() as Book);
+  try {
+    // Check our Firestore cache first.
+    const booksRef = collection(db, "books");
+    const localQuery = query(
+      booksRef,
+      where("title", ">=", queryStr),
+      where("title", "<=", queryStr + "\uf8ff"),
+      firestoreLimit(limit)
+    );
+    const snapshot = await getDocs(localQuery);
+    books = snapshot.docs.map(doc => doc.data() as Book);
+  } catch (error) {
+    console.log("Skipping Firestore book cache:", error);
+  }
 
-  //let books: Book[] = [];
   console.log("Before open library if");
   // Fall back to OpenLibrary if nothing found
   if (books.length === 0) {
@@ -34,8 +38,12 @@ export async function searchAndLog(
     console.log("after open library if");
     // Cache results for next user
     for (const book of books) {
-      console.log("Cache");
-      await addDoc(collection(db, "books"), book);
+      try {
+        console.log("Cache");
+        await addDoc(collection(db, "books"), book);
+      } catch (error) {
+        console.log("Skipping book cache write:", error);
+      }
     }
   }
 

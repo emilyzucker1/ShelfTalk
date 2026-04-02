@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { addBookToShelf, addShelf, getUserShelves } from '../../hooks/use-shelves';
 import { searchAndLog } from '../../scripts/book_search';
 import { Book } from "../../scripts/openlib_lookup";
@@ -14,6 +14,16 @@ export default function TabTwoScreen() {
     const [selectedBook, setSelectedBook] = useState<Book | null>(null)
     const [shelves, setShelves] = useState<any[]>([])
     const [newShelfName, setNewShelfName] = useState('')
+
+    const fetchShelves = async () => {
+        try {
+            const result = await getUserShelves()
+            setShelves(result)
+        } catch (error) {
+            console.log('Shelves error:', error)
+            setShelves([])
+        }
+    }
 
     useEffect(() => {
         const fetchBooks = async () => {
@@ -30,17 +40,11 @@ export default function TabTwoScreen() {
         if (searchQuery.length > 2) fetchBooks()
     }, [searchQuery])
 
-    useEffect(() => {
-        const fetchShelves = async () => {
-            try {
-                const result = await getUserShelves()
-                setShelves(result)
-            } catch (error) {
-                console.log('Shelves error:', error)
-            }
-        }
-        fetchShelves()
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            fetchShelves()
+        }, [])
+    )
 
     const filteredData = data.filter(item =>
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -118,8 +122,14 @@ export default function TabTwoScreen() {
                                 <TouchableOpacity
                                     key={shelf.id}
                                     onPress={async () => {
-                                        await addBookToShelf(shelf.id, selectedBook!)
-                                        setSelectedBook(null)
+                                        try {
+                                            await addBookToShelf(shelf.id, selectedBook!)
+                                            await fetchShelves()
+                                            setSelectedBook(null)
+                                        } catch (error) {
+                                            console.log('Add book to shelf error:', error)
+                                            Alert.alert('Shelf update failed', 'We could not add this book to your shelf. Please try again.')
+                                        }
                                     }}
                                     style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#eee' }}
                                 >
@@ -139,9 +149,15 @@ export default function TabTwoScreen() {
                             <TouchableOpacity
                                 onPress={async () => {
                                     if (!newShelfName.trim()) return
-                                    const id = await addShelf(newShelfName.trim())
-                                    setShelves(prev => [...prev, { id, name: newShelfName.trim() }])
-                                    setNewShelfName('')
+                                    try {
+                                        const id = await addShelf(newShelfName.trim())
+                                        await fetchShelves()
+                                        setShelves(prev => prev.some(shelf => shelf.id === id) ? prev : [...prev, { id, name: newShelfName.trim() }])
+                                        setNewShelfName('')
+                                    } catch (error) {
+                                        console.log('Add shelf error:', error)
+                                        Alert.alert('Shelf creation failed', 'We could not create that shelf. Please try again.')
+                                    }
                                 }}
                                 style={{ backgroundColor: '#F4A896', borderRadius: 10, padding: 10 }}
                             >
