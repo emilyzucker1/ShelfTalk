@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Button,Text, Image, View, Platform, Alert, Pressable, StyleSheet} from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
-export default function JournalEntries({date, title, book = "", content, visibility, image, onEdit}) {
+export default function JournalEntries({date, title, book = "", content, visibility, image, onEdit, onDelete}) {
     //this is to pick the image for the journal entry
     
     const styles = StyleSheet.create({
@@ -44,6 +44,9 @@ export default function JournalEntries({date, title, book = "", content, visibil
             </View>
             <Pressable onPress={onEdit}>
                 <Feather name="edit" size={24} color="#605F5F" />
+            </Pressable>
+            <Pressable onPress={onDelete}>
+                <Feather name="trash-2" size={24} color="#E63946" />
             </Pressable>
             
         </View>

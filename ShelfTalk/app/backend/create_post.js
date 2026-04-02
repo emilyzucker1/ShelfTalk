@@ -2,7 +2,16 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/index.js";
 
 
-export async function createPost(book, text, authorID, username, isPublic, question = "") {
+/**
+ * @param {string} book
+ * @param {string} text
+ * @param {string} authorID
+ * @param {string} username
+ * @param {boolean} isPublic
+ * @param {string} [question]
+ * @param {string | null} [imageUrl]
+ */
+export async function createPost(book, text, authorID, username, isPublic, question = "", imageUrl = null) {
   try {
     const docRef = await addDoc(collection(db, "posts"), {
       authorId: authorID,
@@ -11,6 +20,7 @@ export async function createPost(book, text, authorID, username, isPublic, quest
       book: book,
       question: question,
       text: text,
+      image: imageUrl,
       likeCount: 0, //new field to keep track of the number of likes on a post
       createdAt: serverTimestamp(),
     });

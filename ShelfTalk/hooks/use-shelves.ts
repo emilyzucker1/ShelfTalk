@@ -25,7 +25,7 @@ async function resolveCurrentUserId() {
     });
   });
 
-  return resolvedUser.uid;
+  return (resolvedUser as any).uid;
 }
 
 export async function getUserShelves() {

@@ -4,7 +4,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { useFocusEffect } from 'expo-router';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import JournalEntries from '../../components/ui/journal_entries';
 import ProfilePhoto from '../../components/ui/profile_photo';
 import CustomSwitch from '../../components/ui/switch';
@@ -12,10 +12,13 @@ import EditProfileModal from '@/components/ui/edit_profile';
 import { Platform } from "react-native";
 import { useRouter } from 'expo-router';
 import { createPost } from "../backend/create_post";
+import { deletePost } from "../backend/delete_post";
 import { getUserPosts } from '../backend/get_post';
 import { getUserProfile } from '../backend/user_info';
 import { getUserShelfGroups } from '../../hooks/use-shelves';
 import { auth } from '../firebase';
+import { storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function App() {
   const router = useRouter();
@@ -166,7 +169,16 @@ export default function App() {
 
   const publicEntriesCount = entries.filter((entry) => entry.isPublic).length;
 
-  const handleNewEntry=async(entryData: JournalEntry)=>{
+  const uploadPostImage = async (userId: string, localUri: string) => {
+    const response = await fetch(localUri);
+    const blob = await response.blob();
+
+    const imageRef = ref(storage, `users/${userId}/profile/post-${Date.now()}.jpg`);
+    await uploadBytes(imageRef, blob, { contentType: 'image/jpeg' });
+    return getDownloadURL(imageRef);
+  };
+
+  const handleNewEntry = async (entryData: JournalEntry) => {
     if (editingIndex !== null) {
       // EDITING an existing entry
       const updated = [...entries];
@@ -174,20 +186,28 @@ export default function App() {
       setEntries(updated);
       setEditingIndex(null);
     } else {
-      // ADDING a new entry
-      setEntries(prev => [...prev, entryData]);
-      
       try {
+        const uid = currentUser?.uid;
+        if (!uid) {
+          return;
+        }
+
+        let imageUrl: string | null = null;
+        if (entryData.image) {
+          imageUrl = await uploadPostImage(uid, entryData.image);
+        }
+
         await createPost(
           entryData.book ?? entryData.title,
           entryData.entry,
-          currentUser?.uid ?? '',
+          uid,
           displayName,
           entryData.isPublic,
           entryData.title,
+          imageUrl,
         );
-        if (currentUser?.uid) {
-          await loadEntries(currentUser.uid);
+        if (uid) {
+          await loadEntries(uid);
         }
       }
       catch (error) {
@@ -195,8 +215,36 @@ export default function App() {
       }
     }
   };
-  
-  
+
+  const handleDeleteEntry = async (index: number) => {
+    const entry = entries[index];
+    if (!entry?.id) return;
+
+    const doDelete = async () => {
+      try {
+        await deletePost(entry.id!);
+        setEntries(prev => prev.filter((_, i) => i !== index));
+      } catch (err) {
+        console.error('Failed to delete post:', err);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Are you sure you want to delete this journal entry?')) {
+        await doDelete();
+      }
+    } else {
+      Alert.alert(
+        'Delete Entry',
+        'Are you sure you want to delete this journal entry?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Delete', style: 'destructive', onPress: doDelete },
+        ]
+      );
+    }
+  };
+
 
   return (
     <View style={styles.pageWrapper}>
@@ -282,6 +330,7 @@ export default function App() {
                       setEditingIndex(index);
                       setPopupVisible(true);
                     }}
+                    onDelete={() => handleDeleteEntry(index)}
                   />
                 ))}
 

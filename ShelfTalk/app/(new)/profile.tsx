@@ -13,7 +13,7 @@ export default function App() {
       <View style={styles.topHalf}>
         </View>
       <View style={styles.photoWrapper}>
-        <ProfilePhoto />
+        <ProfilePhoto photoUrl={null} />
       </View>
       <View style={styles.bottomHalf}>
         <Text style={{fontSize:30, fontWeight:'500'}}>Username</Text>
@@ -26,7 +26,7 @@ in reading novels and love historical books.
         </View>
         <CustomSwitch selected={selected} onSelectChange={setSelected} />
         {selected === "journal" && (
-          <JournalEntries date={'2/8/2026'} title={'Sample Title'} content={'Sample Content'} status={'Finished'} />
+          <JournalEntries date={'2/8/2026'} title={'Sample Title'} content={'Sample Content'} visibility={'Private'} image={null} onEdit={() => {}} onDelete={() => {}} />
         )}
         <Text>This is the profile screen</Text>
       </View>
