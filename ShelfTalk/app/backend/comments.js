@@ -1,8 +1,8 @@
-import { doc, collection, addDoc, getDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
+import { doc, collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/index.js";
 
 //create a new comment for a post 
-export async function createComment(postID, text, authorID) {
+export async function createComment(postID, text, authorID, authorName) {
     try {
         //make sure the comment isn't empty or just whitespace
         if (!text || !text.trim()) {
@@ -11,7 +11,7 @@ export async function createComment(postID, text, authorID) {
 
         const commentRef = collection(db, "posts", postID, "comments");
         
-        await addDoc(commentRef, {text: text, authorId: authorID, createdAt: serverTimestamp()});
+        await addDoc(commentRef, { text: text, authorId: authorID, authorName: authorName ?? 'User', createdAt: serverTimestamp() });
     } catch (error) {
         console.error("Error creating comment:", error);
         throw error;
@@ -23,10 +23,7 @@ export async function getComments(postID) {
     try {
         const commentsRef = collection(db, "posts", postID, "comments");
         const commentsSnapshot = await getDocs(commentsRef);
-
-        if (commentsSnapshot.exists()) {
-            return commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        }
+        return commentsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching comments:", error);
         throw error;

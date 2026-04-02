@@ -3,18 +3,24 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
   Image,
 } from 'react-native';
 import { getPublicPosts } from '../backend/get_post';
 // import { getFollowingPosts } from '../backend/get_post';
-import { userID } from '../firebase';
+import { auth, db } from '../firebase';
+import { toggleLike } from '../backend/likes';
+import { createComment, getComments, deleteComment } from '../backend/comments';
+import { collection, doc, getCountFromServer, getDoc } from 'firebase/firestore';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -35,9 +41,17 @@ type Post = {
   isFollowing: boolean;
 };
 
+type Comment = {
+  id: string;
+  text: string;
+  authorId: string;
+  authorName?: string;
+  createdAt?: any;
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const mapPostToFeedItem = (post: any, followingIds: string[] = []): Post => ({
+const mapPostToFeedItem = (post: any, liked = false, followingIds: string[] = [], commentCount = 0): Post => ({
   id: post?.id ?? Math.random().toString(),
   userId: post?.authorId,
   username: post?.username ?? 'Reader',
@@ -49,9 +63,9 @@ const mapPostToFeedItem = (post: any, followingIds: string[] = []): Post => ({
     ? post.createdAt.toDate().toLocaleDateString()
     : '',
   image: post?.image ?? null,
-  likes: post?.likes ?? 0,
-  comments: post?.comments ?? 0,
-  liked: post?.likedBy?.includes(userID) ?? false,
+  likes: post?.likeCount ?? 0,
+  comments: commentCount,
+  liked,
   isFollowing: followingIds.includes(post?.authorId),
 });
 
@@ -114,12 +128,16 @@ function PostCard({
   tab,
   onToggleLike,
   onFollow,
+  onOpenComments,
+  commentCount,
 }: {
   post: Post;
   index: number;
   tab: 'following' | 'explore';
   onToggleLike: (id: string) => void;
   onFollow: (id: string) => void;
+  onOpenComments: (id: string) => void;
+  commentCount: number;
 }) {
   return (
     <View style={cardStyles.card}>
@@ -186,9 +204,9 @@ function PostCard({
             {post.likes} likes
           </Text>
         </Pressable>
-        <Pressable style={cardStyles.actionBtn}>
+        <Pressable style={cardStyles.actionBtn} onPress={() => onOpenComments(post.id)}>
           <FontAwesome name="comment-o" size={15} color="#2e3a35" />
-          <Text style={cardStyles.actionText}>{post.comments} comments</Text>
+          <Text style={cardStyles.actionText}>{commentCount} comments</Text>
         </Pressable>
       </View>
     </View>
@@ -267,6 +285,162 @@ const cardStyles = StyleSheet.create({
   actionText: { fontSize: 13, color: '#1a2a24', fontWeight: '400' },
 });
 
+// ─── Comment Modal ────────────────────────────────────────────────────────────
+
+function CommentModal({
+  visible,
+  postId,
+  comments,
+  loading,
+  input,
+  submitting,
+  currentUserId,
+  onClose,
+  onChangeInput,
+  onSubmit,
+  onDeleteComment,
+}: {
+  visible: boolean;
+  postId: string | null;
+  comments: Comment[];
+  loading: boolean;
+  input: string;
+  submitting: boolean;
+  currentUserId: string | undefined;
+  onClose: () => void;
+  onChangeInput: (text: string) => void;
+  onSubmit: () => void;
+  onDeleteComment: (commentId: string, postId: string) => void;
+}) {
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <Pressable style={cmtStyles.overlay} onPress={onClose} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={cmtStyles.sheet}
+      >
+        {/* Header */}
+        <View style={cmtStyles.sheetHeader}>
+          <Text style={cmtStyles.sheetTitle}>Comments</Text>
+          <Pressable onPress={onClose} style={cmtStyles.closeBtn}>
+            <Feather name="x" size={20} color="#748B97" />
+          </Pressable>
+        </View>
+
+        {/* List */}
+        {loading ? (
+          <View style={cmtStyles.centeredRow}>
+            <ActivityIndicator size="small" color="#90B8A8" />
+          </View>
+        ) : comments.length === 0 ? (
+          <View style={cmtStyles.centeredRow}>
+            <Text style={cmtStyles.emptyText}>No comments yet. Be the first!</Text>
+          </View>
+        ) : (
+          <ScrollView style={cmtStyles.list} keyboardShouldPersistTaps="handled">
+            {comments.map(c => (
+              <View key={c.id} style={cmtStyles.commentRow}>
+                <AvatarPlaceholder name={c.authorName ?? 'User'} size={32} />
+                <View style={cmtStyles.bubble}>
+                  <Text style={cmtStyles.commentAuthor}>{c.authorName ?? 'User'}</Text>
+                  <Text style={cmtStyles.commentText}>{c.text}</Text>
+                </View>
+                {currentUserId && c.authorId === currentUserId && postId && (
+                  <Pressable
+                    style={cmtStyles.deleteBtn}
+                    onPress={() => onDeleteComment(c.id, postId)}
+                  >
+                    <Feather name="trash-2" size={14} color="#E63946" />
+                  </Pressable>
+                )}
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
+        {/* Input */}
+        <View style={cmtStyles.inputRow}>
+          <TextInput
+            style={cmtStyles.input}
+            placeholder="Add a comment..."
+            placeholderTextColor="#748B97"
+            value={input}
+            onChangeText={onChangeInput}
+            multiline
+          />
+          <Pressable
+            style={[cmtStyles.sendBtn, (!input.trim() || submitting) && cmtStyles.sendBtnDisabled]}
+            onPress={onSubmit}
+            disabled={!input.trim() || submitting}
+          >
+            {submitting
+              ? <ActivityIndicator size="small" color="#fff" />
+              : <Feather name="send" size={16} color="#fff" />}
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+const cmtStyles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingBottom: Platform.OS === 'ios' ? 30 : 16,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e8f0ec',
+  },
+  sheetTitle: { fontSize: 16, fontWeight: '700', color: '#1a2a24' },
+  closeBtn: { padding: 4 },
+  centeredRow: { paddingVertical: 30, alignItems: 'center' },
+  emptyText: { fontSize: 13, color: '#748B97' },
+  list: { flexGrow: 1, paddingHorizontal: 14, paddingTop: 8, maxHeight: 320 },
+  commentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 14 },
+  bubble: { flex: 1, backgroundColor: '#f0f7f4', borderRadius: 12, padding: 10 },
+  commentAuthor: { fontSize: 12, fontWeight: '700', color: '#1a2a24', marginBottom: 3 },
+  commentText: { fontSize: 13, color: '#2e3a35', lineHeight: 18 },
+  deleteBtn: { padding: 6, marginTop: 6 },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#e8f0ec',
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#f0f7f4',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 13,
+    color: '#1a2a24',
+    maxHeight: 80,
+  },
+  sendBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#90B8A8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendBtnDisabled: { backgroundColor: '#c9ddd5' },
+});
+
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
@@ -274,13 +448,39 @@ export default function HomeScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [commentPostId, setCommentPostId] = useState<string | null>(null);
+  const [commentsMap, setCommentsMap] = useState<{ [key: string]: Comment[] }>({});
+  const [commentInput, setCommentInput] = useState('');
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
 
   const loadPosts = async () => {
     setLoading(true);
     try {
+      const currentUserId = auth.currentUser?.uid;
       const raw = await getPublicPosts();
       const sortedRaw = sortPostsByCreatedAt(raw ?? []);
-      setPosts(sortedRaw.map(p => mapPostToFeedItem(p)));
+
+      let likedStates: boolean[] = sortedRaw.map(() => false);
+      if (currentUserId) {
+        likedStates = await Promise.all(
+          sortedRaw.map(post =>
+            getDoc(doc(db, 'posts', post.id, 'likes', currentUserId))
+              .then(snap => snap.exists())
+              .catch(() => false)
+          )
+        );
+      }
+
+      const commentCounts = await Promise.all(
+        sortedRaw.map(post =>
+          getCountFromServer(collection(db, 'posts', post.id, 'comments'))
+            .then(snap => snap.data().count)
+            .catch(() => 0)
+        )
+      );
+
+      setPosts(sortedRaw.map((p, i) => mapPostToFeedItem(p, likedStates[i], [], commentCounts[i])));
     } catch (err) {
       console.error('Failed to load posts:', err);
     } finally {
@@ -296,7 +496,11 @@ export default function HomeScreen() {
 
   useEffect(() => { loadPosts(); }, [tab]);
 
-  const handleToggleLike = (id: string) => {
+  const handleToggleLike = async (id: string) => {
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId) return;
+
+    // Optimistic update
     setPosts(prev =>
       prev.map(p =>
         p.id === id
@@ -304,7 +508,20 @@ export default function HomeScreen() {
           : p
       )
     );
-    // TODO: persist to backend
+
+    try {
+      await toggleLike(id, currentUserId);
+    } catch (err) {
+      console.error('Failed to toggle like:', err);
+      // Revert optimistic update on failure
+      setPosts(prev =>
+        prev.map(p =>
+          p.id === id
+            ? { ...p, liked: !p.liked, likes: p.liked ? p.likes - 1 : p.likes + 1 }
+            : p
+        )
+      );
+    }
   };
 
   const handleFollow = (id: string) => {
@@ -312,6 +529,51 @@ export default function HomeScreen() {
       prev.map(p => (p.id === id ? { ...p, isFollowing: !p.isFollowing } : p))
     );
     // TODO: persist to backend
+  };
+
+  const handleOpenComments = async (postId: string) => {
+    setCommentPostId(postId);
+    setCommentsLoading(true);
+    try {
+      const fetched = await getComments(postId);
+      setCommentsMap(prev => ({ ...prev, [postId]: (fetched ?? []) as Comment[] }));
+    } catch (err) {
+      console.error('Failed to load comments:', err);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleCloseComments = () => {
+    setCommentPostId(null);
+    setCommentInput('');
+  };
+
+  const handleSubmitComment = async () => {
+    const currentUser = auth.currentUser;
+    const pid = commentPostId;
+    if (!currentUser || !pid || !commentInput.trim()) return;
+    setSubmittingComment(true);
+    try {
+      await createComment(pid, commentInput.trim(), currentUser.uid, currentUser.displayName ?? 'Reader');
+      setCommentInput('');
+      const updated = await getComments(pid);
+      setCommentsMap(prev => ({ ...prev, [pid]: (updated ?? []) as Comment[] }));
+    } catch (err) {
+      console.error('Failed to submit comment:', err);
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string, postId: string) => {
+    try {
+      await deleteComment(commentId, postId);
+      const updated = await getComments(postId);
+      setCommentsMap(prev => ({ ...prev, [postId]: (updated ?? []) as Comment[] }));
+    } catch (err) {
+      console.error('Failed to delete comment:', err);
+    }
   };
 
   return (
@@ -383,12 +645,27 @@ export default function HomeScreen() {
                   tab={tab}
                   onToggleLike={handleToggleLike}
                   onFollow={handleFollow}
+                  onOpenComments={handleOpenComments}
+                  commentCount={(commentsMap[post.id] || []).length || post.comments}
                 />
               ))
             )}
           </ScrollView>
         )}
       </View>
+      <CommentModal
+        visible={commentPostId !== null}
+        postId={commentPostId}
+        comments={commentPostId ? (commentsMap[commentPostId] ?? []) : []}
+        loading={commentsLoading}
+        input={commentInput}
+        submitting={submittingComment}
+        currentUserId={auth.currentUser?.uid}
+        onClose={handleCloseComments}
+        onChangeInput={setCommentInput}
+        onSubmit={handleSubmitComment}
+        onDeleteComment={handleDeleteComment}
+      />
     </View>
   );
 }
