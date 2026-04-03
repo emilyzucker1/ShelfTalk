@@ -1,0 +1,100 @@
+[debug] [2026-04-02T03:32:05.896Z] ----------------------------------------------------------------------
+[debug] [2026-04-02T03:32:05.902Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\zucke\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules --project shelftalk-acf7e --non-interactive --debug
+[debug] [2026-04-02T03:32:05.903Z] CLI Version:   15.12.0
+[debug] [2026-04-02T03:32:05.903Z] Platform:      win32
+[debug] [2026-04-02T03:32:05.903Z] Node Version:  v22.19.0
+[debug] [2026-04-02T03:32:05.904Z] Time:          Wed Apr 01 2026 23:32:05 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-04-02T03:32:05.904Z] ----------------------------------------------------------------------
+[debug] 
+[error] 
+[error] Error: Not in a Firebase app directory (could not locate firebase.json)
+[debug] [2026-04-02T03:32:40.527Z] ----------------------------------------------------------------------
+[debug] [2026-04-02T03:32:40.575Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\zucke\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules --project shelftalk-acf7e --non-interactive --debug
+[debug] [2026-04-02T03:32:40.578Z] CLI Version:   15.12.0
+[debug] [2026-04-02T03:32:40.578Z] Platform:      win32
+[debug] [2026-04-02T03:32:40.579Z] Node Version:  v22.19.0
+[debug] [2026-04-02T03:32:40.580Z] Time:          Wed Apr 01 2026 23:32:40 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-04-02T03:32:40.583Z] ----------------------------------------------------------------------
+[debug] 
+[error] 
+[error] Error: Not in a Firebase app directory (could not locate firebase.json)
+[debug] [2026-04-02T03:33:15.539Z] ----------------------------------------------------------------------
+[debug] [2026-04-02T03:33:15.544Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\zucke\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules --project shelftalk-acf7e --config C:\Users\zucke\ShelfTalk\ShelfTalk\firebase.json --non-interactive --debug
+[debug] [2026-04-02T03:33:15.546Z] CLI Version:   15.12.0
+[debug] [2026-04-02T03:33:15.547Z] Platform:      win32
+[debug] [2026-04-02T03:33:15.547Z] Node Version:  v22.19.0
+[debug] [2026-04-02T03:33:15.547Z] Time:          Wed Apr 01 2026 23:33:15 GMT-0400 (Eastern Daylight Time)
+[debug] [2026-04-02T03:33:15.548Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-02T03:33:20.954Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-04-02T03:33:20.957Z] > authorizing via signed-in user (hookandemma123@gmail.com)
+[debug] [2026-04-02T03:33:20.958Z] [iam] checking project shelftalk-acf7e for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-04-02T03:33:20.960Z] Checked if tokens are valid: false, expires at: 1775081364039
+[debug] [2026-04-02T03:33:20.960Z] Checked if tokens are valid: false, expires at: 1775081364039
+[debug] [2026-04-02T03:33:20.961Z] > refreshing access token with scopes: []
+[debug] [2026-04-02T03:33:20.965Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-04-02T03:33:20.965Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-04-02T03:33:21.395Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-04-02T03:33:21.398Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-04-02T03:33:21.418Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/shelftalk-acf7e:testIamPermissions [none]
+[debug] [2026-04-02T03:33:21.419Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/shelftalk-acf7e:testIamPermissions  x-goog-user-project=shelftalk-acf7e
+[debug] [2026-04-02T03:33:21.422Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/shelftalk-acf7e:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2026-04-02T03:33:21.784Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/shelftalk-acf7e:testIamPermissions 200
+[debug] [2026-04-02T03:33:21.784Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/shelftalk-acf7e:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'shelftalk-acf7e'...
+[info] 
+[info] i  deploying firestore 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2026-04-02T03:33:21.793Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:21.794Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:21.794Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/shelftalk-acf7e/services/firestore.googleapis.com [none]
+[debug] [2026-04-02T03:33:21.795Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/shelftalk-acf7e/services/firestore.googleapis.com  x-goog-user-project=shelftalk-acf7e
+[debug] [2026-04-02T03:33:22.401Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/shelftalk-acf7e/services/firestore.googleapis.com 200
+[debug] [2026-04-02T03:33:22.402Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/shelftalk-acf7e/services/firestore.googleapis.com [omitted]
+[info] +  firestore: required API firestore.googleapis.com is enabled 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2026-04-02T03:33:22.420Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:22.423Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:22.423Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/shelftalk-acf7e/databases/(default) [none]
+[debug] [2026-04-02T03:33:23.051Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/shelftalk-acf7e/databases/(default) 200
+[debug] [2026-04-02T03:33:23.053Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/shelftalk-acf7e/databases/(default) {"name":"projects/shelftalk-acf7e/databases/(default)","uid":"04911ae2-36b2-4b04-b1e6-fd6fc66630bb","createTime":"2026-01-05T00:29:51.517463Z","updateTime":"2026-01-05T00:29:51.517463Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-04-02T02:33:23.660886Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IJv03uadzpMDMIqTzLio5pID"}
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2026-04-02T03:33:23.060Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:23.061Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:23.063Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e:test [none]
+[debug] [2026-04-02T03:33:23.065Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e:test [omitted]
+[debug] [2026-04-02T03:33:23.436Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e:test 200
+[debug] [2026-04-02T03:33:23.437Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e:test {}
+[info] +  cloud.firestore: rules file firestore.rules compiled successfully 
+[debug] [2026-04-02T03:33:23.447Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:23.451Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:23.453Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/releases pageSize=10&pageToken=
+[debug] [2026-04-02T03:33:23.749Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/releases 200
+[debug] [2026-04-02T03:33:23.751Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/releases {"releases":[{"name":"projects/shelftalk-acf7e/releases/cloud.firestore","rulesetName":"projects/shelftalk-acf7e/rulesets/f01f71f0-4d57-47ea-be3f-758a30375450","createTime":"2026-01-05T00:29:56.432649Z","updateTime":"2026-04-01T23:12:26.818221Z"},{"name":"projects/shelftalk-acf7e/releases/firebase.storage/shelftalk-acf7e.firebasestorage.app","rulesetName":"projects/shelftalk-acf7e/rulesets/1673f09c-dda3-4d60-826e-3f8b5968b43b","createTime":"2026-04-01T21:14:38.496616Z","updateTime":"2026-04-01T21:38:17.909956Z"}]}
+[debug] [2026-04-02T03:33:23.791Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:23.792Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:23.792Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/rulesets/f01f71f0-4d57-47ea-be3f-758a30375450 [none]
+[debug] [2026-04-02T03:33:24.019Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/rulesets/f01f71f0-4d57-47ea-be3f-758a30375450 200
+[debug] [2026-04-02T03:33:24.020Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/rulesets/f01f71f0-4d57-47ea-be3f-758a30375450 [omitted]
+[info] i  firestore: uploading rules firestore.rules... 
+[debug] [2026-04-02T03:33:24.031Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:24.032Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:24.032Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/rulesets [none]
+[debug] [2026-04-02T03:33:24.032Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/rulesets [omitted]
+[debug] [2026-04-02T03:33:24.340Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/rulesets 200
+[debug] [2026-04-02T03:33:24.341Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/rulesets {"name":"projects/shelftalk-acf7e/rulesets/3ddfaf0f-fdbf-4f0f-8b84-16132d934b9d","source":{"files":[{"content":"rules_version = '2';\r\nservice cloud.firestore {\r\n  match /databases/{database}/documents {\r\n    function signedIn() {\r\n      return request.auth != null;\r\n    }\r\n\r\n    function isOwner(userId) {\r\n      return signedIn() && request.auth.uid == userId;\r\n    }\r\n\r\n    function canReadPost(postId) {\r\n      let post = get(/databases/$(database)/documents/posts/$(postId));\r\n      return post.data.isPublic == true || (signedIn() && post.data.authorId == request.auth.uid);\r\n    }\r\n\r\n    match /users/{userId} {\r\n      allow read, create, update, delete: if isOwner(userId);\r\n\r\n      match /shelves/{shelfId} {\r\n        allow read, create, update, delete: if isOwner(userId);\r\n\r\n        match /books/{bookId} {\r\n          allow read, create, update, delete: if isOwner(userId);\r\n        }\r\n      }\r\n    }\r\n\r\n    match /books/{bookId} {\r\n      allow read: if signedIn();\r\n      allow create: if signedIn();\r\n      allow update, delete: if false;\r\n    }\r\n\r\n    match /posts/{postId} {\r\n      allow read: if resource.data.isPublic == true || (signedIn() && resource.data.authorId == request.auth.uid);\r\n      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;\r\n      allow update, delete: if signedIn() && resource.data.authorId == request.auth.uid;\r\n\r\n      match /comments/{commentId} {\r\n        allow read: if canReadPost(postId);\r\n        allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;\r\n        allow update, delete: if signedIn() && resource.data.authorId == request.auth.uid;\r\n      }\r\n\r\n      match /likes/{userId} {\r\n        allow read: if canReadPost(postId);\r\n        allow create, delete: if isOwner(userId);\r\n        allow update: if false;\r\n      }\r\n    }\r\n  }\r\n}","name":"firestore.rules"}]},"createTime":"2026-04-02T03:33:24.953263Z","metadata":{"services":["cloud.firestore"]}}
+[debug] [2026-04-02T03:33:24.342Z] [rules] created ruleset projects/shelftalk-acf7e/rulesets/3ddfaf0f-fdbf-4f0f-8b84-16132d934b9d
+[debug] [2026-04-02T03:33:24.343Z] [rules] releasing cloud.firestore/(default) with ruleset projects/shelftalk-acf7e/rulesets/3ddfaf0f-fdbf-4f0f-8b84-16132d934b9d
+[debug] [2026-04-02T03:33:24.345Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:24.346Z] Checked if tokens are valid: true, expires at: 1775104400399
+[debug] [2026-04-02T03:33:24.348Z] >>> [apiv2][query] PATCH https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/releases/cloud.firestore/(default) [none]
+[debug] [2026-04-02T03:33:24.349Z] >>> [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/releases/cloud.firestore/(default) {"release":{"name":"projects/shelftalk-acf7e/releases/cloud.firestore/(default)","rulesetName":"projects/shelftalk-acf7e/rulesets/3ddfaf0f-fdbf-4f0f-8b84-16132d934b9d"}}
+[debug] [2026-04-02T03:33:24.691Z] <<< [apiv2][status] PATCH https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/releases/cloud.firestore/(default) 200
+[debug] [2026-04-02T03:33:24.693Z] <<< [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/shelftalk-acf7e/releases/cloud.firestore/(default) {"name":"projects/shelftalk-acf7e/releases/cloud.firestore","rulesetName":"projects/shelftalk-acf7e/rulesets/3ddfaf0f-fdbf-4f0f-8b84-16132d934b9d","createTime":"2026-01-05T00:29:56.432649Z","updateTime":"2026-04-02T03:33:25.303476Z"}
+[debug] [2026-04-02T03:33:24.695Z] [rules] updated release projects/shelftalk-acf7e/releases/cloud.firestore
+[info] +  firestore: released rules firestore.rules to cloud.firestore 
+[info] 
+[info] +  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/shelftalk-acf7e/overview

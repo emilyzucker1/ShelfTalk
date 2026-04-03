@@ -15,12 +15,12 @@ import {
   View,
   Image,
 } from 'react-native';
-import { getPublicPosts } from '../backend/get_post';
-// import { getFollowingPosts } from '../backend/get_post';
+import { getPublicPosts, getFollowingPosts, getOwnPublicPosts } from '../backend/get_post';
 import { auth, db } from '../firebase';
 import { toggleLike } from '../backend/likes';
 import { createComment, getComments, deleteComment } from '../backend/comments';
 import { collection, doc, getCountFromServer, getDoc } from 'firebase/firestore';
+import { followUser, unfollowUser, getFollowingIds, getUserProfile } from '../backend/user_info';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -458,8 +458,31 @@ export default function HomeScreen() {
     setLoading(true);
     try {
       const currentUserId = auth.currentUser?.uid;
-      const raw = await getPublicPosts();
-      const sortedRaw = sortPostsByCreatedAt(raw ?? []);
+
+      let followingIds: string[] = [];
+      if (currentUserId) {
+        followingIds = await getFollowingIds(currentUserId);
+      }
+
+      let raw: any[];
+      if (tab === 'following') {
+        const [followingPosts, ownPosts] = await Promise.all([
+          getFollowingPosts(followingIds),
+          currentUserId ? getOwnPublicPosts(currentUserId) : Promise.resolve([]),
+        ]);
+        // Merge and deduplicate by post id
+        const seen = new Set<string>();
+        raw = [...(followingPosts ?? []), ...(ownPosts ?? [])].filter(p => {
+          if (seen.has(p.id)) return false;
+          seen.add(p.id);
+          return true;
+        });
+      } else {
+        const all = await getPublicPosts();
+        // Exclude the current user's own posts from Explore
+        raw = (all ?? []).filter(p => p.authorId !== currentUserId);
+      }
+      const sortedRaw = sortPostsByCreatedAt(raw);
 
       let likedStates: boolean[] = sortedRaw.map(() => false);
       if (currentUserId) {
@@ -480,7 +503,22 @@ export default function HomeScreen() {
         )
       );
 
-      setPosts(sortedRaw.map((p, i) => mapPostToFeedItem(p, likedStates[i], [], commentCounts[i])));
+      // Fetch each unique author's profile to get their photoURL
+      const uniqueAuthorIds = [...new Set(sortedRaw.map(p => p.authorId).filter(Boolean))];
+      const profileResults = await Promise.all(
+        uniqueAuthorIds.map(uid => getUserProfile(uid).catch(() => null))
+      );
+      const avatarMap: Record<string, string | null> = {};
+      uniqueAuthorIds.forEach((uid, i) => {
+        avatarMap[uid] = profileResults[i]?.photoURL ?? null;
+      });
+
+      setPosts(sortedRaw.map((p, i) => mapPostToFeedItem(
+        { ...p, userAvatar: avatarMap[p.authorId] ?? p.userAvatar ?? null },
+        likedStates[i],
+        followingIds,
+        commentCounts[i]
+      )));
     } catch (err) {
       console.error('Failed to load posts:', err);
     } finally {
@@ -524,11 +562,25 @@ export default function HomeScreen() {
     }
   };
 
-  const handleFollow = (id: string) => {
-    setPosts(prev =>
-      prev.map(p => (p.id === id ? { ...p, isFollowing: !p.isFollowing } : p))
-    );
-    // TODO: persist to backend
+  const handleFollow = async (id: string) => {
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId) return;
+    const post = posts.find(p => p.id === id);
+    if (!post?.userId) return;
+
+    // Optimistic update
+    setPosts(prev => prev.map(p => p.id === id ? { ...p, isFollowing: !p.isFollowing } : p));
+    try {
+      if (post.isFollowing) {
+        await unfollowUser(currentUserId, post.userId);
+      } else {
+        await followUser(currentUserId, post.userId);
+      }
+    } catch (err) {
+      console.error('Failed to update follow:', err);
+      // Revert optimistic update
+      setPosts(prev => prev.map(p => p.id === id ? { ...p, isFollowing: !p.isFollowing } : p));
+    }
   };
 
   const handleOpenComments = async (postId: string) => {

@@ -1,6 +1,5 @@
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/index.js";
-import {userID} from "../firebase"
 
 
 export async function createUserProfile (user) {
@@ -43,3 +42,18 @@ export const updateUserProfile = async (userID, updates) => {
     console.log("Error updating data:", e);
   }
 };
+
+export async function followUser(currentUid, targetUid) {
+  await setDoc(doc(db, "users", currentUid, "following", targetUid), {
+    followedAt: serverTimestamp(),
+  });
+}
+
+export async function unfollowUser(currentUid, targetUid) {
+  await deleteDoc(doc(db, "users", currentUid, "following", targetUid));
+}
+
+export async function getFollowingIds(currentUid) {
+  const snap = await getDocs(collection(db, "users", currentUid, "following"));
+  return snap.docs.map(d => d.id);
+}
